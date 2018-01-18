@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:id="@+id/button2"
+        android:text="Add Name"
+        android:layout_below="@+id/editText3"
+        android:layout_centerHorizontal="true"
+        android:onClick="onClickAddName"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_centerHorizontal="true"
+         />
+
+    <EditText
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText2"
+        android:hint="Name"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:textColorHint="@android:color/holo_blue_light" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText3"
+        android:layout_below="@+id/editText2"
+        android:layout_alignLeft="@+id/editText2"
+        android:layout_alignStart="@+id/editText2"
+        android:layout_alignRight="@+id/editText2"
+        android:layout_alignEnd="@+id/editText2"
+        android:hint="Grade"
+        android:textColorHint="@android:color/holo_blue_bright" />
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:text="Retrive student"
+        android:id="@+id/button"
+        android:layout_below="@+id/button2"
+        android:layout_alignLeft="@id/button2"
+        android:onClick="onClickRetrieveStudents"/>
+
+</RelativeLayout>
