@@ -30,7 +30,7 @@ import cz.msebera.android.httpclient.entity.mime.Header;
 
 public class RestController {
 
-    public static final String FILE_UP_PATH = "";
+    public static final String FILE_UP_PATH = "http://192.168.1.1:8080/test";
     public static final int TIMEOUT = 50000;
     private static final String TAG = "BUDGET_ROOK";
 
