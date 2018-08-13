@@ -36,6 +36,9 @@ public interface ExpenseDao {
     @Query("select * from expenseentity where isSynchronized = 0")
     List<ExpenseEntity> getNotSynchronized();
 
+    @Query("select count(uid) from expenseentity where isSynchronized = 1 and isReviewed = 0")
+    int getNumberOfExpensesToReview();
+
     @Update
     void update(ExpenseEntity expense);
 }

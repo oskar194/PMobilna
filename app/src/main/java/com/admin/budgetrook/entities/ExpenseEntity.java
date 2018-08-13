@@ -36,11 +36,13 @@ public class ExpenseEntity {
         isReviewed = reviewed;
     }
 
-    public ExpenseEntity(long amount, String name, int categoryId, Date date) {
+    public ExpenseEntity(long amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized) {
         this.amount = amount;
         this.categoryId = categoryId;
         this.name = name;
         this.date = date;
+        this.isReviewed = isReviewed;
+        this.isSynchronized = isSynchronized;
     }
 
     public int getUid() {
@@ -85,9 +87,9 @@ public class ExpenseEntity {
 
     public static ExpenseEntity[] prepareData() {
         return new ExpenseEntity[]{
-                new ExpenseEntity(5000, "Restaurant", 1, new Date()),
-                new ExpenseEntity(10000, "Book", 2, new Date()),
-                new ExpenseEntity(20000, "School", 3, new Date())
+                new ExpenseEntity(5000, "Restaurant", 1, new Date(), true, true),
+                new ExpenseEntity(10000, "Book", 2, new Date(), true, true),
+                new ExpenseEntity(20000, "School", 3, new Date(), true, true)
         };
     }
 

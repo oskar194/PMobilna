@@ -21,7 +21,7 @@ import com.admin.budgetrook.entities.ExpenseEntity;
 
 import java.util.concurrent.Executors;
 
-@Database(entities = {AccountEntity.class, CategoryEntity.class, ExpenseEntity.class}, version = 2, exportSchema = false)
+@Database(entities = {AccountEntity.class, CategoryEntity.class, ExpenseEntity.class}, version = 1, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract AccountDao accountDao();

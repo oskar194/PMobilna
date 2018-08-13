@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
 import com.admin.budgetrook.entities.CategoryEntity;
@@ -28,12 +30,15 @@ public class MenuActivity extends Activity {
 
     private static PieChart chart;
     private Long allAmount = 0L;
-    String msg = "BudgetRookApp: ";
+    private String msg = "BudgetRookApp: ";
+    private TextView notificationMessage;
+    private LinearLayout notificationLayout;
 
     @Override
     protected void onResume() {
         super.onResume();
         new FetchChartDataTask().execute();
+        new SetupNotificationTask().execute();
     }
 
     @Override
@@ -41,6 +46,8 @@ public class MenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         chart = (PieChart) findViewById(R.id.chart);
+        notificationMessage = (TextView)findViewById(R.id.notification_tv);
+        notificationLayout = (LinearLayout)findViewById(R.id.notification_layout);
     }
 
     private float getCategoryPercent(List<ExpenseEntity> categoryExpenses) {
@@ -58,8 +65,8 @@ public class MenuActivity extends Activity {
         List<PieEntry> entries = new ArrayList<PieEntry>();
         for (CategoriesAndExpenses element : categoriesAndExpenses) {
             float categorySum = getCategoryPercent(element.getExpenses());
-            Log.d("BUDGETROOK", "categorySum" + element.getCategory().getName()+ ": " + categorySum);
-            if(categorySum == 0L){
+            Log.d("BUDGETROOK", "categorySum" + element.getCategory().getName() + ": " + categorySum);
+            if (categorySum == 0L) {
                 continue;
             }
             entries.add(new PieEntry(categorySum, element.getCategory().getName()));
@@ -102,6 +109,29 @@ public class MenuActivity extends Activity {
                 return;
             }
             setupChart(categoriesAndExpenses);
+        }
+    }
+
+    private class SetupNotificationTask extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            Integer expensesToReview = AppDatabase.getInstance(getApplicationContext()).expenseDao().getNumberOfExpensesToReview();
+            return expensesToReview;
+        }
+
+        @Override
+        protected void onPostExecute(Integer expensesToReview) {
+            buildNotificationMessage(expensesToReview);
+        }
+    }
+
+    private void buildNotificationMessage(Integer expensesToReview) {
+        if (expensesToReview == 0) {
+            notificationLayout.setVisibility(View.INVISIBLE);
+        } else {
+            notificationMessage.setText("You currently have: " + expensesToReview + " expenses to review");
+            notificationLayout.setVisibility(View.VISIBLE);
         }
     }
 

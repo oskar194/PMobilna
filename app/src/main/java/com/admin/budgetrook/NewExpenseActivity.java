@@ -138,7 +138,7 @@ public class NewExpenseActivity extends Activity {
                 );
                 String name = expenseName.getText().toString();
                 ExpenseEntity expense = new ExpenseEntity(
-                        10000L, name, category.getUid(), new Date()
+                        0L, name, category.getUid(), new Date(), false, true
                 );
                 AppDatabase.getInstance(getApplicationContext()).expenseDao().insertAll(expense);
                 success = true;
