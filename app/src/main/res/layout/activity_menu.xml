@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/vertical_margin"
+    android:paddingLeft="@dimen/horizontal_margin"
+    android:paddingRight="@dimen/horizontal_margin"
+    android:paddingTop="@dimen/vertical_margin"
+    tools:context="com.admin.budgetrook.MenuActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/addExpense"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_vertical"
+            android:layout_weight="1"
+            android:onClick="addExpense"
+            android:text="Add new expense" />
+
+        <Button
+            android:id="@+id/analyticsBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_vertical"
+            android:layout_weight="1"
+            android:onClick="goToAnalytics"
+            android:text="Analytics" />
+
+        <Button
+            android:id="@+id/myExpensesBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_vertical"
+            android:layout_weight="1"
+            android:onClick="goToMyExpenses"
+            android:text="My expenses" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

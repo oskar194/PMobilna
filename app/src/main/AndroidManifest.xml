@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.admin.budgetrook">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,11 +21,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DbActivity">
-        </activity>
-        <provider android:name="StudentsProvider"
-            android:authorities="com.admin.budgetrook.StudentsProvider"/>
-        <service android:name=".MyService"/>
+        <activity android:name=".CameraActivity" />
+        <activity android:name=".NewExpenseActivity" />
+        <activity android:name=".NewCategoryActivity" />
+        <activity android:name=".MenuActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".MyExpensesActivity" />
+        <activity android:name=".AnalyticsActivity"></activity>
     </application>
 
 </manifest>
