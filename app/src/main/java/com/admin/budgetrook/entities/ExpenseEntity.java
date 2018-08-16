@@ -20,21 +20,7 @@ public class ExpenseEntity {
     private boolean isSynchronized;
     private boolean isReviewed;
 
-    public boolean isSynchronized() {
-        return isSynchronized;
-    }
 
-    public void setSynchronized(boolean aSynchronized) {
-        isSynchronized = aSynchronized;
-    }
-
-    public boolean isReviewed() {
-        return isReviewed;
-    }
-
-    public void setReviewed(boolean reviewed) {
-        isReviewed = reviewed;
-    }
 
     public ExpenseEntity(long amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized) {
         this.amount = amount;
@@ -83,6 +69,22 @@ public class ExpenseEntity {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public boolean isSynchronized() {
+        return isSynchronized;
+    }
+
+    public void setSynchronized(boolean aSynchronized) {
+        isSynchronized = aSynchronized;
+    }
+
+    public boolean isReviewed() {
+        return isReviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        isReviewed = reviewed;
     }
 
     public static ExpenseEntity[] prepareData() {
