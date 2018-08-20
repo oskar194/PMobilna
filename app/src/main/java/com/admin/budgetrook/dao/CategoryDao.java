@@ -22,6 +22,9 @@ public interface CategoryDao {
     @Query("SELECT * from categoryentity where isSynchronized = 0")
     List<CategoryEntity> getNotSynchronized();
 
+    @Query("SELECT * from categoryentity where uid = :uid")
+    CategoryEntity getById(int uid);
+
     @Insert
     void insertAll(CategoryEntity... categories);
 }
