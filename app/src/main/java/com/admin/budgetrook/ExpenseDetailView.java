@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.admin.budgetrook.dialogs.AmountPickerDialog;
 import com.admin.budgetrook.dialogs.DatePickerFragment;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
@@ -26,7 +27,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ExpenseDetailView extends Activity implements DatePickerFragment.OnFragmentInteractionListener{
+public class ExpenseDetailView extends Activity implements DatePickerFragment.OnFragmentInteractionListener,
+AmountPickerDialog.AmountPickerInterface{
 
     private static String expenseUid;
     private TextView expenseName;
@@ -44,21 +46,32 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
 
     FrameLayout progressBarHolder;
 
-    DialogFragment dialog;
+    DialogFragment datePickerDialog;
+    DialogFragment amountPickerDialog;
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
-    private void createDialog(){
+    private void createDatePickerDialog(){
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        dialog = DatePickerFragment.newInstance(expenseDate.getText().toString());
-        dialog.show(ft, "dialog");
+        datePickerDialog = DatePickerFragment.newInstance(expenseDate.getText().toString());
+        datePickerDialog.show(ft, "dialog");
     }
 
+    private void createAmountPickerDialog(){
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        amountPickerDialog = AmountPickerDialog.newInstance(expenseAmount.getText().toString());
+        amountPickerDialog.show(ft, "dialog");
+    }
 
     @Override
     protected void onResume() {
@@ -78,12 +91,19 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
         expenseName = (TextView) findViewById(R.id.detail_name_tv);
         categoryName = (TextView) findViewById(R.id.detail_category_tv);
         expenseAmount = (TextView) findViewById(R.id.detail_amount_tv);
+        expenseAmount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createAmountPickerDialog();
+            }
+        });
+
         expenseDate = (TextView) findViewById(R.id.detail_date_tv);
 
         expenseDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createDialog();
+                createDatePickerDialog();
             }
         });
         thumbnail = (ImageView) findViewById(R.id.detail_thumbnail_iv);
@@ -99,9 +119,12 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String raw = expenseAmount.getText().toString();
+                Float f = Float.parseFloat(raw);
+                f = f*100f;
                 new UpdateTask().execute(new SetupDto(
                         expenseName.getText().toString(),
-                        Long.parseLong(expenseAmount.getText().toString()),
+                        f.longValue(),
                         convertDate(expenseDate.getText().toString()),
                         categoryName.getText().toString(),
                         ""
@@ -121,20 +144,30 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
     private void setViewValues(SetupDto setupDto) {
         expenseName.setText(setupDto.expenseName);
         categoryName.setText(setupDto.categoryName);
-        expenseAmount.setText(Long.toString(setupDto.expenseAmount));
+        String floating = String.format("%.2f", (setupDto.expenseAmount / 100.0f));
+        if(floating.contains(",")){
+            floating = floating.replace(",",".");
+        }
+        expenseAmount.setText(floating);
         expenseDate.setText(format.format(setupDto.expenseDate));
         thumbnail.setImageResource(R.drawable.ic_notification);
     }
 
     @Override
     public void onFragmentInteraction(Date date) {
-        dialog.dismiss();
+        datePickerDialog.dismiss();
         expenseDate.setText(format.format(date));
     }
 
     @Override
     public void finishDialog() {
-        dialog.dismiss();
+        datePickerDialog.dismiss();
+    }
+
+    @Override
+    public void amountSelected(String newAmount) {
+        expenseAmount.setText(newAmount);
+        amountPickerDialog.dismiss();
     }
 
     private class SetupTask extends AsyncTask<String, Void, SetupDto> {
