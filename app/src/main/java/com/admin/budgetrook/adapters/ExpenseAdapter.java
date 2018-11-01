@@ -13,16 +13,20 @@ import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.holders.ListItemViewHolder;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ExpenseAdapter extends BaseAdapter {
     private Context context;
     private List<ExpenseEntity> expenses;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private Map<String, String> categoriesMap = new HashMap<String, String>();
 
-    public ExpenseAdapter(Context context, List<ExpenseEntity> expenses) {
+    public ExpenseAdapter(Context context, List<ExpenseEntity> expenses, Map<String, String> categoriesMap) {
         this.context = context;
         this.expenses = expenses;
+        this.categoriesMap = categoriesMap;
     }
 
     @Override
@@ -61,6 +65,7 @@ public class ExpenseAdapter extends BaseAdapter {
             holder.getAmount().setText(Long.toString(currentItem.getAmount()));
             holder.getDate().setText(dateFormat.format(currentItem.getDate()));
             holder.getName().setText(currentItem.getName());
+            holder.getCategory().setText(categoriesMap.get(Integer.toString(currentItem.getCategoryId())));
             if(currentItem.isReviewed()){
                 holder.getNotificationIcon().setVisibility(View.INVISIBLE);
             } else {

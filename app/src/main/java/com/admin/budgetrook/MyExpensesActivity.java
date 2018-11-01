@@ -14,14 +14,18 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.admin.budgetrook.adapters.ExpenseAdapter;
+import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyExpensesActivity extends Activity {
 
     private ListView myExpensesListView;
+    private Map<String, String> categoriesMap = new HashMap<String, String>();
 
     @Override
     protected void onResume() {
@@ -39,7 +43,6 @@ public class MyExpensesActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), ExpenseDetailView.class);
                 ExpenseEntity expense = (ExpenseEntity)parent.getItemAtPosition(position);
-                Log.d("BUDGETROOK", "expensUid in Parent: " + expense.getUid());
                 intent.putExtra("expenseUid", Long.toString(expense.getUid()));
                 startActivity(intent);
             }
@@ -48,7 +51,7 @@ public class MyExpensesActivity extends Activity {
     }
 
     private void setAdapter(List<ExpenseEntity> expenses) {
-        ListAdapter adapter = new ExpenseAdapter(getApplicationContext(), expenses);
+        ListAdapter adapter = new ExpenseAdapter(getApplicationContext(), expenses, categoriesMap);
         myExpensesListView.setAdapter(adapter);
 
     }
@@ -57,6 +60,10 @@ public class MyExpensesActivity extends Activity {
 
         @Override
         protected List<ExpenseEntity> doInBackground(Void... voids) {
+            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll();
+            for(CategoryEntity category : categories){
+                categoriesMap.put(Integer.toString(category.getUid()), category.getName());
+            }
             return AppDatabase.getInstance(getApplicationContext()).expenseDao().getAll();
         }
 

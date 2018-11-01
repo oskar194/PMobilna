@@ -9,11 +9,14 @@ import android.widget.TextView;
 
 import com.admin.budgetrook.R;
 
+import org.w3c.dom.Text;
+
 public class ListItemViewHolder {
     private View row;
     private TextView name = null;
     private TextView amount = null;
     private TextView date = null;
+    private TextView category = null;
     private LinearLayout readyLayout = null;
     private ProgressBar syncProgressBar = null;
     private ImageView notificationIcon = null;
@@ -62,5 +65,12 @@ public class ListItemViewHolder {
             notificationIcon = (ImageView)row.findViewById(R.id.notification_iv);
         }
         return notificationIcon;
+    }
+
+    public TextView getCategory(){
+        if (category == null) {
+            category = (TextView) row.findViewById(R.id.expense_li_category_tv);
+        }
+        return category;
     }
 }
