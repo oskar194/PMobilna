@@ -16,6 +16,7 @@ import com.admin.budgetrook.XAxisFormatters.MonthXAxisFormatter;
 import com.admin.budgetrook.XAxisFormatters.YearsXAxisFormatter;
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.helpers.DateSplitHelper;
 import com.admin.budgetrook.interfaces.ChartFragmentInterface;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -32,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import static com.admin.budgetrook.helpers.DateSplitHelper.getKeyBySetting;
+import static com.admin.budgetrook.helpers.DateSplitHelper.PeriodSetting;
 
 public class BarChartFragment extends Fragment {
     private List<CategoriesAndExpenses> chartData;
@@ -128,26 +131,7 @@ public class BarChartFragment extends Fragment {
         return entries;
     }
 
-    private int getKeyBySetting(ExpenseEntity expense, PeriodSetting setting) {
-        Calendar cal = GregorianCalendar.getInstance();
-        cal.setTime(expense.getDate());
-        switch (setting) {
-            case DAYS: {
-                return cal.get(Calendar.DAY_OF_WEEK);
-            }
-            case MONTHS: {
-                return cal.get(Calendar.MONTH);
-            }
-            case YEARS: {
-                return cal.get(Calendar.YEAR);
-            }
-            default: {
-                return cal.get(Calendar.DAY_OF_MONTH);
-            }
-        }
-    }
-
-    private IAxisValueFormatter getFormatterBySetting(PeriodSetting setting){
+    private IAxisValueFormatter getFormatterBySetting(PeriodSetting setting) {
         Locale locale = getResources().getConfiguration().locale;
         switch (setting) {
             case DAYS: {
@@ -182,16 +166,11 @@ public class BarChartFragment extends Fragment {
         mListener = null;
     }
 
-    private enum PeriodSetting {
-        DAYS,
-        MONTHS,
-        YEARS
-    }
 
-    private List<String> getPeriodStrings(){
+    private List<String> getPeriodStrings() {
         List<String> result = new ArrayList<String>();
         PeriodSetting[] vals = PeriodSetting.values();
-        for(PeriodSetting item : vals){
+        for (PeriodSetting item : vals) {
             result.add(item.toString());
         }
         return result;
