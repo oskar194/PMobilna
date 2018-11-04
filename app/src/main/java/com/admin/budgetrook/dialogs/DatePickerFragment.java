@@ -2,10 +2,7 @@ package com.admin.budgetrook.dialogs;
 
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +16,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class DatePickerFragment extends DialogFragment {
     private static final String DATE_ARG = "dateArg";
@@ -73,9 +69,9 @@ public class DatePickerFragment extends DialogFragment {
                 Calendar cal = Calendar.getInstance();
                 cal.set(
                         datePicker.getYear(),
-                        datePicker.getMonth() + 1,
+                        datePicker.getMonth(),
                         datePicker.getDayOfMonth(),
-                        0,0,0
+                        0, 0, 0
                 );
                 mListener.onFragmentInteraction(cal.getTime());
             }
@@ -116,6 +112,7 @@ public class DatePickerFragment extends DialogFragment {
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Date date);
+
         void finishDialog();
     }
 

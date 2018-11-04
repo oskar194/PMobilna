@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.RelativeLayout;
 
 import com.admin.budgetrook.R;
 import com.admin.budgetrook.entities.ExpenseEntity;
@@ -62,11 +61,11 @@ public class ExpenseAdapter extends BaseAdapter {
         if (currentItem.isSynchronized()) {
             holder.getSyncProgressBar().setVisibility(View.GONE);
             holder.getReadyLayout().setVisibility(View.VISIBLE);
-            holder.getAmount().setText(Long.toString(currentItem.getAmount()));
+            holder.getAmount().setText(String.format("%.2f", currentItem.getAmount()));
             holder.getDate().setText(dateFormat.format(currentItem.getDate()));
             holder.getName().setText(currentItem.getName());
             holder.getCategory().setText(categoriesMap.get(Integer.toString(currentItem.getCategoryId())));
-            if(currentItem.isReviewed()){
+            if (currentItem.isReviewed()) {
                 holder.getNotificationIcon().setVisibility(View.INVISIBLE);
             } else {
                 holder.getNotificationIcon().setVisibility(View.VISIBLE);

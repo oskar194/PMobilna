@@ -14,27 +14,22 @@ import com.admin.budgetrook.R;
 import com.admin.budgetrook.XAxisFormatters.DaysXAxisFormatter;
 import com.admin.budgetrook.XAxisFormatters.MonthXAxisFormatter;
 import com.admin.budgetrook.XAxisFormatters.YearsXAxisFormatter;
+import com.admin.budgetrook.customDataSets.ColoredMaxDataSet;
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
 import com.admin.budgetrook.entities.ExpenseEntity;
-import com.admin.budgetrook.helpers.DateSplitHelper;
 import com.admin.budgetrook.interfaces.ChartFragmentInterface;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
-import static com.admin.budgetrook.helpers.DateSplitHelper.getKeyBySetting;
 import static com.admin.budgetrook.helpers.DateSplitHelper.PeriodSetting;
+import static com.admin.budgetrook.helpers.DateSplitHelper.getKeyBySetting;
 
 public class BarChartFragment extends Fragment {
     private List<CategoriesAndExpenses> chartData;
@@ -81,10 +76,12 @@ public class BarChartFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 setting = PeriodSetting.values()[position];
                 List<BarEntry> entries = convertDataBySetting(chartData, setting);
-                BarDataSet dataSet = new BarDataSet(entries, "Expenses");
+                ColoredMaxDataSet dataSet = new ColoredMaxDataSet(entries, "Expenses");
+                dataSet.setColors(getResources().getColor(R.color.colorPrimary), getResources().getColor(R.color.maxValue));
                 BarData barData = new BarData(dataSet);
                 chart.getXAxis().setValueFormatter(getFormatterBySetting(setting));
                 chart.setData(barData);
+                chart.notifyDataSetChanged();
                 chart.invalidate();
             }
 
@@ -98,7 +95,8 @@ public class BarChartFragment extends Fragment {
         if (mListener != null) {
             chartData = mListener.getData();
             List<BarEntry> entries = convertDataBySetting(chartData, setting);
-            BarDataSet dataSet = new BarDataSet(entries, "Expenses");
+            ColoredMaxDataSet dataSet = new ColoredMaxDataSet(entries, "Expenses");
+            dataSet.setColors(R.color.colorPrimary, R.color.maxValue);
             BarData barData = new BarData(dataSet);
             barData.setBarWidth(0.9f); // set custom bar width
             chart.setFitBars(true); // make the x-axis fit exactly all bars
@@ -107,18 +105,19 @@ public class BarChartFragment extends Fragment {
             chart.setData(barData);
             chart.setDescription(null);
             chart.getLegend().setEnabled(false);
+            chart.notifyDataSetChanged();
             chart.invalidate();
         }
     }
 
     private List<BarEntry> convertDataBySetting(List<CategoriesAndExpenses> rawData, PeriodSetting setting) {
         List<BarEntry> entries = new ArrayList<BarEntry>();
-        HashMap<Integer, Long> data = new HashMap<Integer, Long>();
+        HashMap<Integer, Float> data = new HashMap<Integer, Float>();
         for (CategoriesAndExpenses item : rawData) {
             List<ExpenseEntity> expenses = item.getExpenses();
             for (ExpenseEntity expense : expenses) {
                 int key = getKeyBySetting(expense, setting);
-                Long amount = expense.getAmount();
+                float amount = expense.getAmount().floatValue();
                 if (data.containsKey(key)) {
                     amount += data.get(key);
                 }
@@ -135,12 +134,24 @@ public class BarChartFragment extends Fragment {
         Locale locale = getResources().getConfiguration().locale;
         switch (setting) {
             case DAYS: {
+                chart.getXAxis().setLabelCount(7, true);
+                chart.getXAxis().setAxisMinimum(1);
+                chart.getXAxis().setAxisMaximum(7);
+                chart.getXAxis().setGranularity(1);
                 return new DaysXAxisFormatter(locale);
             }
             case MONTHS: {
+                chart.getXAxis().setLabelCount(12);
+                chart.getXAxis().setAxisMinimum(0);
+                chart.getXAxis().setAxisMaximum(11);
+                chart.getXAxis().setGranularity(1);
                 return new MonthXAxisFormatter(locale);
             }
             case YEARS: {
+                chart.getXAxis().setLabelCount(5);
+                chart.getXAxis().setGranularity(1);
+                chart.getXAxis().resetAxisMaximum();
+                chart.getXAxis().resetAxisMinimum();
                 return new YearsXAxisFormatter();
             }
             default: {

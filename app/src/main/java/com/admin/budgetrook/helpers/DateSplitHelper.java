@@ -2,7 +2,6 @@ package com.admin.budgetrook.helpers;
 
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
 import com.admin.budgetrook.entities.ExpenseEntity;
-import com.admin.budgetrook.fragments.BarChartFragment;
 import com.github.mikephil.charting.data.BarEntry;
 
 import java.util.ArrayList;
@@ -12,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DateSplitHelper {
+    private static final String TAG = "BUDGETROOK";
+
     public enum PeriodSetting {
         DAYS,
         MONTHS,
@@ -39,12 +40,12 @@ public class DateSplitHelper {
 
     public static List<BarEntry> convertDataBySetting(List<CategoriesAndExpenses> rawData, PeriodSetting setting) {
         List<BarEntry> entries = new ArrayList<BarEntry>();
-        HashMap<Integer, Long> data = new HashMap<Integer, Long>();
+        HashMap<Integer, Float> data = new HashMap<Integer, Float>();
         for (CategoriesAndExpenses item : rawData) {
             List<ExpenseEntity> expenses = item.getExpenses();
             for (ExpenseEntity expense : expenses) {
                 int key = getKeyBySetting(expense, setting);
-                Long amount = expense.getAmount();
+                float amount = expense.getAmount().floatValue();
                 if (data.containsKey(key)) {
                     amount += data.get(key);
                 }

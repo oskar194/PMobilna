@@ -135,14 +135,14 @@ public class RadarChartFragment extends Fragment {
 
     private List<RadarEntry> getEntriesForYear(List<CategoriesAndExpenses> chartData, int year) {
         int counter = 0;
-        long summed = 0;
+        float summed = 0;
         List<RadarEntry> entries = new ArrayList<RadarEntry>();
         for (CategoriesAndExpenses item : chartData) {
             for (ExpenseEntity expense : item.getExpenses()) {
                 if (year != getKeyBySetting(expense, DateSplitHelper.PeriodSetting.YEARS)) {
                     continue;
                 }
-                summed += expense.getAmount();
+                summed += expense.getAmount().floatValue();
             }
             entries.add(new RadarEntry(summed, counter));
             counter++;

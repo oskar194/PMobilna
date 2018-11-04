@@ -1,28 +1,23 @@
 package com.admin.budgetrook.entities;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Date;
-
-import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 @Entity
 public class ExpenseEntity {
     @PrimaryKey(autoGenerate = true)
     private int uid;
-    private long amount;
+    private BigDecimal amount;
     private int categoryId;
     private String name;
     private Date date;
     private boolean isSynchronized;
     private boolean isReviewed;
 
-
-
-    public ExpenseEntity(long amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized) {
+    public ExpenseEntity(BigDecimal amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized) {
         this.amount = amount;
         this.categoryId = categoryId;
         this.name = name;
@@ -39,11 +34,11 @@ public class ExpenseEntity {
         this.uid = uid;
     }
 
-    public long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -89,9 +84,9 @@ public class ExpenseEntity {
 
     public static ExpenseEntity[] prepareData() {
         return new ExpenseEntity[]{
-                new ExpenseEntity(5000, "Restaurant", 1, new Date(), true, true),
-                new ExpenseEntity(10000, "Book", 2, new Date(), true, true),
-                new ExpenseEntity(20000, "School", 3, new Date(), true, true)
+                new ExpenseEntity(new BigDecimal(50.25), "Restaurant", 1, new Date(), true, true),
+                new ExpenseEntity(new BigDecimal(100.75), "Book", 2, new Date(), true, true),
+                new ExpenseEntity(new BigDecimal(75.55), "School", 3, new Date(), true, true)
         };
     }
 

@@ -51,9 +51,9 @@ public class MenuActivity extends Activity {
     }
 
     private float getCategoryPercent(List<ExpenseEntity> categoryExpenses) {
-        Long categorySum = 0L;
+        float categorySum = 0L;
         for (ExpenseEntity expense : categoryExpenses) {
-            categorySum += expense.getAmount();
+            categorySum += expense.getAmount().floatValue();
         }
         if (categorySum == 0L) {
             return 0F;

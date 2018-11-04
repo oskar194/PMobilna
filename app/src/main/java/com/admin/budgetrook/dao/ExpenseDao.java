@@ -19,6 +19,9 @@ public interface ExpenseDao {
     @Insert
     void insertAll(ExpenseEntity... expenses);
 
+    @Insert
+    long insert(ExpenseEntity expense);
+
     @Query("Select * from expenseEntity where date between :dateFrom and :dateTo")
     List<ExpenseEntity> getBetween(Date dateFrom, Date dateTo);
 

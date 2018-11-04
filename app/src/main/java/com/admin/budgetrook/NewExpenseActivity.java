@@ -8,26 +8,30 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admin.budgetrook.dao.CategoryDao;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.entities.ImageEntity;
 
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 public class NewExpenseActivity extends Activity {
 
     public static final int RESULT_CODE = 100;
+    private static final String TAG = "BUDGETROOK";
 
     private Button submitButton;
     private ImageView photoView;
@@ -36,12 +40,22 @@ public class NewExpenseActivity extends Activity {
     private TextView addPhotoText;
     private Button addCategoryButton;
 
+    private String imagePath;
+    private Bitmap scaledBitmap;
+    private byte[] imageData;
+
+    AlphaAnimation inAnimation;
+    AlphaAnimation outAnimation;
+
+    FrameLayout progressBarHolder;
+
     private List<CategoryEntity> categories = new ArrayList<CategoryEntity>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_expense);
+        this.progressBarHolder = (FrameLayout) findViewById(R.id.new_expense_progressBarHolder);
         setup();
     }
 
@@ -88,11 +102,12 @@ public class NewExpenseActivity extends Activity {
     }
 
     private void setPhotoFromCamera(Intent data) {
-        String path = data.getStringExtra(CameraActivity.IMAGE_PATH);
-        Bitmap photo = BitmapFactory.decodeFile(path);
-        Bitmap scaled = Bitmap.createScaledBitmap(photo, photo.getWidth() / 10,
+        imagePath = data.getStringExtra(CameraActivity.IMAGE_PATH);
+        Log.d(TAG, "setPhotoFromCamera: imagePath " + imagePath);
+        Bitmap photo = BitmapFactory.decodeFile(imagePath);
+        scaledBitmap = Bitmap.createScaledBitmap(photo, photo.getWidth() / 10,
                 photo.getHeight() / 10, true);
-        photoView.setImageBitmap(scaled);
+        photoView.setImageBitmap(scaledBitmap);
         addPhotoText.setVisibility(View.INVISIBLE);
         photoView.setVisibility(View.VISIBLE);
     }
@@ -138,9 +153,25 @@ public class NewExpenseActivity extends Activity {
                 );
                 String name = expenseName.getText().toString();
                 ExpenseEntity expense = new ExpenseEntity(
-                        0L, name, category.getUid(), new Date(), false, true
+                        new BigDecimal(0), name, category.getUid(), new Date(), false, true
                 );
-                AppDatabase.getInstance(getApplicationContext()).expenseDao().insertAll(expense);
+                long expenseUid = AppDatabase.getInstance(getApplicationContext()).expenseDao().insert(expense);
+
+                if (imagePath != null) {
+                    if (scaledBitmap != null) {
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        scaledBitmap.compress(Bitmap.CompressFormat.PNG, 90, byteArrayOutputStream);
+                        imageData = byteArrayOutputStream.toByteArray();
+                    }
+                }
+                Log.d(TAG, "doInBackground: imagePath " + imagePath);
+                Log.d(TAG, "doInBackground: imageData " + imageData.length);
+                if (imagePath != null) {
+                    ImageEntity imageEntity = new ImageEntity((int) expenseUid, imageData, imagePath);
+                    Log.d(TAG, "doInBackground: imageEntity " + imageEntity.toString());
+                    AppDatabase.getInstance(getApplicationContext()).imageDao().insertAll(imageEntity);
+                }
+
                 success = true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -148,15 +179,40 @@ public class NewExpenseActivity extends Activity {
             }
             return success;
         }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loaderOn();
+        }
 
         @Override
         protected void onPostExecute(Boolean result) {
+            loaderOff();
             showMessage(result);
         }
     }
 
+
+    private void loaderOn() {
+        inAnimation = new AlphaAnimation(0f, 1f);
+        inAnimation.setDuration(200);
+        progressBarHolder.setAnimation(inAnimation);
+        progressBarHolder.setVisibility(View.VISIBLE);
+        submitButton.setEnabled(false);
+        addCategoryButton.setEnabled(false);
+    }
+
+    private void loaderOff() {
+        outAnimation = new AlphaAnimation(1f, 0f);
+        outAnimation.setDuration(200);
+        progressBarHolder.setAnimation(outAnimation);
+        progressBarHolder.setVisibility(View.GONE);
+        submitButton.setEnabled(true);
+        addCategoryButton.setEnabled(true);
+    }
+
     private void showMessage(Boolean result) {
-        if(result){
+        if (result) {
             Toast.makeText(getApplicationContext(), "New expense created", Toast.LENGTH_SHORT).show();
             finish();
         } else {

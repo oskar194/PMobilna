@@ -7,15 +7,14 @@ import java.text.DateFormatSymbols;
 import java.util.Locale;
 
 public class MonthXAxisFormatter implements IAxisValueFormatter {
+    private String[] symbols;
 
-    private Locale locale;
-
-    public MonthXAxisFormatter(Locale locale){
-        this.locale = locale;
+    public MonthXAxisFormatter(Locale locale) {
+        this.symbols = DateFormatSymbols.getInstance(locale).getShortMonths();
     }
 
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
-        return DateFormatSymbols.getInstance(locale).getMonths()[(int)value].toUpperCase().substring(0, 3);
+        return symbols[(int) value % symbols.length];
     }
 }

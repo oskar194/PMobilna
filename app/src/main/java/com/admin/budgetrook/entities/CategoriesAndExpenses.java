@@ -3,8 +3,6 @@ package com.admin.budgetrook.entities;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Relation;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class CategoriesAndExpenses {

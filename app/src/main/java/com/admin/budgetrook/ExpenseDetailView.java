@@ -3,9 +3,8 @@ package com.admin.budgetrook;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.media.Image;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,15 +19,18 @@ import com.admin.budgetrook.dialogs.AmountPickerDialog;
 import com.admin.budgetrook.dialogs.DatePickerFragment;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.entities.ImageEntity;
 
-import org.w3c.dom.Text;
-
+import java.io.File;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ExpenseDetailView extends Activity implements DatePickerFragment.OnFragmentInteractionListener,
-AmountPickerDialog.AmountPickerInterface{
+        AmountPickerDialog.AmountPickerInterface {
+
+    private final String TAG = "BUDGETROOK";
 
     private static String expenseUid;
     private TextView expenseName;
@@ -49,9 +51,11 @@ AmountPickerDialog.AmountPickerInterface{
     DialogFragment datePickerDialog;
     DialogFragment amountPickerDialog;
 
+    ImageEntity imageEntity;
+
     private static final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
-    private void createDatePickerDialog(){
+    private void createDatePickerDialog() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
@@ -62,7 +66,7 @@ AmountPickerDialog.AmountPickerInterface{
         datePickerDialog.show(ft, "dialog");
     }
 
-    private void createAmountPickerDialog(){
+    private void createAmountPickerDialog() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
@@ -120,14 +124,12 @@ AmountPickerDialog.AmountPickerInterface{
             @Override
             public void onClick(View v) {
                 String raw = expenseAmount.getText().toString();
-                Float f = Float.parseFloat(raw);
-                f = f*100f;
                 new UpdateTask().execute(new SetupDto(
                         expenseName.getText().toString(),
-                        f.longValue(),
+                        new BigDecimal(raw),
                         convertDate(expenseDate.getText().toString()),
                         categoryName.getText().toString(),
-                        ""
+                        imageEntity == null ? null : imageEntity.getImage()
                 ));
             }
         });
@@ -138,19 +140,23 @@ AmountPickerDialog.AmountPickerInterface{
                 new DeleteTask().execute();
             }
         });
-        progressBarHolder = (FrameLayout)findViewById(R.id.detail_progressBarHolder);
+        progressBarHolder = (FrameLayout) findViewById(R.id.detail_progressBarHolder);
     }
 
     private void setViewValues(SetupDto setupDto) {
         expenseName.setText(setupDto.expenseName);
         categoryName.setText(setupDto.categoryName);
-        String floating = String.format("%.2f", (setupDto.expenseAmount / 100.0f));
-        if(floating.contains(",")){
-            floating = floating.replace(",",".");
+        String floating = String.format("%.2f", (setupDto.expenseAmount.floatValue()));
+        if (floating.contains(",")) {
+            floating = floating.replace(",", ".");
         }
         expenseAmount.setText(floating);
         expenseDate.setText(format.format(setupDto.expenseDate));
-        thumbnail.setImageResource(R.drawable.ic_notification);
+        if (imageEntity != null) {
+            thumbnail.setImageBitmap(BitmapFactory.decodeByteArray(imageEntity.getImage(), 0, imageEntity.getImage().length));
+        } else {
+            thumbnail.setImageResource(R.drawable.ic_notification);
+        }
     }
 
     @Override
@@ -178,12 +184,19 @@ AmountPickerDialog.AmountPickerInterface{
                     .expenseDao().getById(Integer.valueOf(params[0]));
             CategoryEntity category = AppDatabase.getInstance(getApplicationContext())
                     .categoryDao().getById(expense.getCategoryId());
+
+            imageEntity = AppDatabase.getInstance(getApplicationContext()).
+                    imageDao().getByExpenseId(Integer.valueOf(params[0]));
+
+            Log.d(TAG, "doInBackground: imageEntity " + imageEntity);
+            Log.d(TAG, "doInBackground: uid " + Integer.valueOf(params[0]));
+
             return new SetupDto(
                     expense.getName(),
                     expense.getAmount(),
                     expense.getDate(),
                     category.getName(),
-                    "none"
+                    imageEntity == null ? null : imageEntity.getImage()
             );
         }
 
@@ -257,6 +270,16 @@ AmountPickerDialog.AmountPickerInterface{
             ExpenseEntity expenseEntity = AppDatabase.getInstance(getApplicationContext())
                     .expenseDao().getById(Integer.valueOf(expenseUid));
             AppDatabase.getInstance(getApplicationContext()).expenseDao().delete(expenseEntity);
+
+            if (imageEntity != null) {
+                String imagePath = imageEntity.getPath();
+                if (imagePath != null) {
+                    File f = new File(imagePath);
+                    f.delete();
+                }
+                AppDatabase.getInstance(getApplicationContext()).imageDao().delete(imageEntity);
+            }
+
             return null;
         }
 
@@ -276,21 +299,21 @@ AmountPickerDialog.AmountPickerInterface{
 
     private class SetupDto {
         String expenseName;
-        long expenseAmount;
+        BigDecimal expenseAmount;
         Date expenseDate;
         String categoryName;
-        String imagePath;
+        byte[] imageData;
 
-        public SetupDto(String expenseName, long expenseAmount, Date expenseDate, String categoryName, String imagePath) {
+        public SetupDto(String expenseName, BigDecimal expenseAmount, Date expenseDate, String categoryName, byte[] imageData) {
             this.expenseName = expenseName;
             this.expenseAmount = expenseAmount;
             this.expenseDate = expenseDate;
             this.categoryName = categoryName;
-            this.imagePath = imagePath;
+            this.imageData = imageData;
         }
     }
 
-    private Date convertDate(String date){
+    private Date convertDate(String date) {
         Date d = new Date();
         try {
             d = format.parse(expenseDate.getText().toString());
