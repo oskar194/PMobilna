@@ -41,7 +41,6 @@ public class NewExpenseActivity extends Activity {
     private Button addCategoryButton;
 
     private String imagePath;
-    private Bitmap scaledBitmap;
     private byte[] imageData;
 
     AlphaAnimation inAnimation;
@@ -102,12 +101,10 @@ public class NewExpenseActivity extends Activity {
     }
 
     private void setPhotoFromCamera(Intent data) {
+        imageData = data.getByteArrayExtra(CameraActivity.IMAGE_BYTE_ARRAY);
         imagePath = data.getStringExtra(CameraActivity.IMAGE_PATH);
-        Log.d(TAG, "setPhotoFromCamera: imagePath " + imagePath);
-        Bitmap photo = BitmapFactory.decodeFile(imagePath);
-        scaledBitmap = Bitmap.createScaledBitmap(photo, photo.getWidth() / 10,
-                photo.getHeight() / 10, true);
-        photoView.setImageBitmap(scaledBitmap);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+        photoView.setImageBitmap(bitmap);
         addPhotoText.setVisibility(View.INVISIBLE);
         photoView.setVisibility(View.VISIBLE);
     }
@@ -157,16 +154,9 @@ public class NewExpenseActivity extends Activity {
                 );
                 long expenseUid = AppDatabase.getInstance(getApplicationContext()).expenseDao().insert(expense);
 
-                if (imagePath != null) {
-                    if (scaledBitmap != null) {
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        scaledBitmap.compress(Bitmap.CompressFormat.PNG, 90, byteArrayOutputStream);
-                        imageData = byteArrayOutputStream.toByteArray();
-                    }
-                }
                 Log.d(TAG, "doInBackground: imagePath " + imagePath);
                 Log.d(TAG, "doInBackground: imageData " + imageData.length);
-                if (imagePath != null) {
+                if (imagePath != null && imageData != null) {
                     ImageEntity imageEntity = new ImageEntity((int) expenseUid, imageData, imagePath);
                     Log.d(TAG, "doInBackground: imageEntity " + imageEntity.toString());
                     AppDatabase.getInstance(getApplicationContext()).imageDao().insertAll(imageEntity);

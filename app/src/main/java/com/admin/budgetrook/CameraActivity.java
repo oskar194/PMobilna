@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,7 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
 public class CameraActivity extends Activity {
+    public static final String IMAGE_BYTE_ARRAY = "image";
     public static final String IMAGE_PATH = "image_path";
 
     private static final String TAG = "BUDGET_ROOK";
@@ -29,12 +32,11 @@ public class CameraActivity extends Activity {
     private CameraPreview mPreview;
     private CameraHelper helper = new CameraHelper();
     public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
-    private byte[] mData = null;
+    private String savedImagePath = "";
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            mData = data;
+            new SaveImageTask().execute(data);
             mCamera.stopPreview();
         }
     };
@@ -54,20 +56,17 @@ public class CameraActivity extends Activity {
     }
 
     private void retakePhoto() {
-        mData = null;
         mCamera.startPreview();
     }
 
     private void sendPhoto() {
-        if (mData == null) {
-            return;
-        } else {
-            String pathToFile = saveFile();
-            Intent intent = new Intent();
-            intent.putExtra(IMAGE_PATH, pathToFile);
-            setResult(NewExpenseActivity.RESULT_CODE, intent);
-            finish();
-        }
+        byte[] image = createThumbnailByteArray(savedImagePath);
+        Intent intent = new Intent();
+        intent.putExtra(IMAGE_BYTE_ARRAY, image);
+        intent.putExtra(IMAGE_PATH, savedImagePath);
+        setResult(NewExpenseActivity.RESULT_CODE, intent);
+        finish();
+
 //        new Thread(new Runnable() {
 //            public void run() {
 //                Log.d(TAG, "Thread Odpalony");
@@ -76,25 +75,14 @@ public class CameraActivity extends Activity {
 //        }).start();
     }
 
-    private String saveFile() {
-        File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(file);
-            Bitmap bitmapImage = BitmapFactory.decodeByteArray(mData, 0, mData.length);
-            Bitmap rotated = CameraHelper.RotateBitmap(bitmapImage, 90);
-            rotated.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return file.getAbsolutePath();
+    private byte[] createThumbnailByteArray(String savedImagePath) {
+        Bitmap bitmap = decodeSampledBitmapFromFile(savedImagePath, 100, 100);
+        bitmap = CameraHelper.RotateBitmap(bitmap, 90);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,10 +145,10 @@ public class CameraActivity extends Activity {
 
     private static File getOutputMediaFile(int type) {
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+                Environment.DIRECTORY_PICTURES), "Budgetrook");
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-                Log.d("MyCameraApp", "failed to create directory");
+                Log.d("Budgetrook", "failed to create directory");
                 return null;
             }
         }
@@ -176,11 +164,64 @@ public class CameraActivity extends Activity {
         return mediaFile;
     }
 
-    private class InsertNewFileTask extends AsyncTask<Void, Void, Void> {
+    public static Bitmap decodeSampledBitmapFromFile(String path, int reqWidth, int reqHeight) {
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
+    }
+
+    private class SaveImageTask extends AsyncTask<byte[], String, String> {
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            return null;
+        protected String doInBackground(byte[]... bytes) {
+
+            byte[] imageToSave = bytes[0];
+
+            File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+//                Bitmap bitmapImage = BitmapFactory.decodeByteArray(mData, 0, mData.length);
+
+//                rotated.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.write(imageToSave);
+                fos.flush();
+                fos.close();
+                return file.getAbsolutePath();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String filePath) {
+            savedImagePath = filePath;
         }
     }
 
