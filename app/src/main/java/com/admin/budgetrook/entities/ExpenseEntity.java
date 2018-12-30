@@ -16,14 +16,17 @@ public class ExpenseEntity {
     private Date date;
     private boolean isSynchronized;
     private boolean isReviewed;
+    private int accountId;
+    private long externalId;
 
-    public ExpenseEntity(BigDecimal amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized) {
+    public ExpenseEntity(BigDecimal amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized, int accountId) {
         this.amount = amount;
         this.categoryId = categoryId;
         this.name = name;
         this.date = date;
         this.isReviewed = isReviewed;
         this.isSynchronized = isSynchronized;
+        this.accountId = accountId;
     }
 
     public int getUid() {
@@ -82,11 +85,30 @@ public class ExpenseEntity {
         isReviewed = reviewed;
     }
 
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
+    }
+
+    public long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(long externalId) {
+        this.externalId = externalId;
+    }
+
     public static ExpenseEntity[] prepareData() {
         return new ExpenseEntity[]{
-                new ExpenseEntity(new BigDecimal(50.25), "Restaurant", 1, new Date(), true, true),
-                new ExpenseEntity(new BigDecimal(100.75), "Book", 2, new Date(), true, true),
-                new ExpenseEntity(new BigDecimal(75.55), "School", 3, new Date(), true, true)
+                new ExpenseEntity(new BigDecimal(50.25), "Restaurant", 1,
+                        new Date(), true, true, 1),
+                new ExpenseEntity(new BigDecimal(100.75), "Book", 2,
+                        new Date(), true, true, 1),
+                new ExpenseEntity(new BigDecimal(75.55), "School", 3,
+                        new Date(), true, true,1)
         };
     }
 
@@ -100,6 +122,8 @@ public class ExpenseEntity {
                 ", date=" + date +
                 ", isSynchronized=" + isSynchronized +
                 ", isReviewed=" + isReviewed +
+                ", accountId=" + accountId +
+                ", externalId=" + externalId +
                 '}';
     }
 }

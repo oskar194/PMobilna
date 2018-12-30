@@ -17,9 +17,11 @@ import android.widget.TextView;
 
 import com.admin.budgetrook.dialogs.AmountPickerDialog;
 import com.admin.budgetrook.dialogs.DatePickerFragment;
+import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.entities.ImageEntity;
+import com.admin.budgetrook.helpers.PrefsHelper;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -233,6 +235,9 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
     private class UpdateTask extends AsyncTask<SetupDto, Void, Void> {
         @Override
         protected Void doInBackground(SetupDto... setupDtos) {
+            AccountEntity accountEntity = AppDatabase.getInstance(getApplicationContext())
+                    .accountDao().getByLogin(PrefsHelper.getInstance().getCurrentUserLogin(getApplicationContext()));
+
             SetupDto setupDto = setupDtos[0];
             CategoryEntity category = AppDatabase.getInstance(getApplicationContext())
                     .categoryDao().getByName(setupDto.categoryName);
@@ -242,7 +247,8 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
                     category.getUid(),
                     setupDto.expenseDate,
                     true,
-                    true
+                    true,
+                    accountEntity.getUid()
             );
             expenseEntity.setUid(Integer.valueOf(expenseUid));
             AppDatabase.getInstance(getApplicationContext()).expenseDao().update(expenseEntity);

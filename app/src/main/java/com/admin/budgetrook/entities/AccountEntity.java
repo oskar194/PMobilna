@@ -2,9 +2,10 @@ package com.admin.budgetrook.entities;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
-@Entity
+@Entity(indices = {@Index(value = {"login"}, unique = true)})
 public class AccountEntity {
     @PrimaryKey(autoGenerate = true)
     private int uid;
@@ -12,7 +13,7 @@ public class AccountEntity {
     private String login;
     @ColumnInfo(name = "password")
     private String password;
-
+    private long externalId;
 
     public int getUid() {
         return uid;
@@ -36,5 +37,30 @@ public class AccountEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(long externalId) {
+        this.externalId = externalId;
+    }
+
+    public static AccountEntity prepareData() {
+        AccountEntity accountEntity = new AccountEntity();
+        accountEntity.login = "Admin";
+        accountEntity.password = "adm123";
+        return accountEntity;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountEntity{" +
+                "uid=" + uid +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", externalId=" + externalId +
+                '}';
     }
 }

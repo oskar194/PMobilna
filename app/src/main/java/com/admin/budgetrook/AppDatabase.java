@@ -18,7 +18,7 @@ import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.entities.ImageEntity;
 
-@Database(entities = {AccountEntity.class, CategoryEntity.class, ExpenseEntity.class, ImageEntity.class}, version = 5, exportSchema = false)
+@Database(entities = {AccountEntity.class, CategoryEntity.class, ExpenseEntity.class, ImageEntity.class}, version = 6, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract AccountDao accountDao();
@@ -49,10 +49,12 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private void populateData() {
         if (categoryDao().count() < 1) {
+            AccountEntity accountEntity = AccountEntity.prepareData();
             CategoryEntity[] categories = CategoryEntity.prepareData();
             ExpenseEntity[] expenses = ExpenseEntity.prepareData();
             beginTransaction();
             try {
+                accountDao().insertAll(accountEntity);
                 categoryDao().insertAll(categories);
                 expenseDao().insertAll(expenses);
                 setTransactionSuccessful();

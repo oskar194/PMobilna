@@ -13,6 +13,8 @@ public class ImageEntity {
     private int expenseId;
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     private byte[] image;
+    private int accountId;
+    private long externalId;
 
     public ImageEntity(int expenseId, byte[] image, String path) {
         this.expenseId = expenseId;
@@ -54,12 +56,30 @@ public class ImageEntity {
         this.expenseId = expenseId;
     }
 
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
+    }
+
+    public long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(long externalId) {
+        this.externalId = externalId;
+    }
+
     @Override
     public String toString() {
         return "ImageEntity{" +
                 "uid=" + uid +
                 ", expenseId=" + expenseId +
                 ", image=" + image.length +
+                ", accountId=" + accountId +
+                ", externalId=" + externalId +
                 ", path='" + path + '\'' +
                 '}';
     }

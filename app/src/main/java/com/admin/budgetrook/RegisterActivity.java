@@ -29,37 +29,38 @@ public class RegisterActivity extends Activity {
         repeatPassword = (EditText) findViewById(R.id.repeat_pass_et);
 
         login.addTextChangedListener(new TextWatcher() {
-                                         @Override
-                                         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                                         }
+            }
 
-                                         @Override
-                                         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                                         }
+            }
 
-                                         @Override
-                                         public void afterTextChanged(Editable s) {
-                                            login.setError(null);
-                                         }
-                                     });
-                password.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            @Override
+            public void afterTextChanged(Editable s) {
+                login.setError(null);
+            }
+        });
 
-                    }
+        password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-                    }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        password.setError(null);
-                    }
-                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                password.setError(null);
+            }
+        });
 
         repeatPassword.addTextChangedListener(new TextWatcher() {
             @Override

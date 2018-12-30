@@ -18,9 +18,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.entities.ImageEntity;
+import com.admin.budgetrook.helpers.PrefsHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -144,13 +146,16 @@ public class NewExpenseActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             Boolean success = false;
             try {
+                AccountEntity accountEntity = AppDatabase.getInstance(getApplicationContext())
+                        .accountDao().getByLogin(PrefsHelper.getInstance().getCurrentUserLogin(getApplicationContext()));
 
                 CategoryEntity category = AppDatabase.getInstance(getApplicationContext()).categoryDao().getByName(
                         categorySelector.getSelectedItem().toString()
                 );
                 String name = expenseName.getText().toString();
                 ExpenseEntity expense = new ExpenseEntity(
-                        new BigDecimal(0), name, category.getUid(), new Date(), false, true
+                        new BigDecimal(0), name, category.getUid(), new Date(), false,
+                        true, accountEntity.getUid()
                 );
                 long expenseUid = AppDatabase.getInstance(getApplicationContext()).expenseDao().insert(expense);
 
@@ -169,6 +174,7 @@ public class NewExpenseActivity extends Activity {
             }
             return success;
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();

@@ -11,13 +11,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@Entity(indices = {@Index(value = {"name"}, unique = true)})
+@Entity(indices = {@Index(value = {"name", "accountId"}, unique = true)})
 public class CategoryEntity {
     @PrimaryKey(autoGenerate = true)
     private int uid;
     @ColumnInfo(name = "name")
     private String name;
     private boolean isSynchronized;
+    @ColumnInfo(name = "accountId")
+    private int accountId;
+    private long externalId;
 
     public CategoryEntity(String name) {
         this.setName(name);
@@ -48,6 +51,21 @@ public class CategoryEntity {
         isSynchronized = aSynchronized;
     }
 
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
+    }
+
+    public long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(long externalId) {
+        this.externalId = externalId;
+    }
 
     public static CategoryEntity[] prepareData() {
         return new CategoryEntity[]{
@@ -55,7 +73,6 @@ public class CategoryEntity {
                 new CategoryEntity("Entertainment"),
                 new CategoryEntity("Education")
         };
-
     }
 
     @Override
@@ -64,6 +81,8 @@ public class CategoryEntity {
                 "uid=" + uid +
                 ", name='" + name + '\'' +
                 ", isSynchronized=" + isSynchronized +
+                ", accountId=" + accountId +
+                ", externalId=" + externalId +
                 '}';
     }
 }
