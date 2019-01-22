@@ -64,7 +64,7 @@ public class ExpenseAdapter extends BaseAdapter {
             holder.getAmount().setText(String.format("%.2f", currentItem.getAmount()));
             holder.getDate().setText(dateFormat.format(currentItem.getDate()));
             holder.getName().setText(currentItem.getName());
-            holder.getCategory().setText(categoriesMap.get(Integer.toString(currentItem.getCategoryId())));
+            holder.getCategory().setText(categoriesMap.get(Long.toString(currentItem.getCategoryId())));
             if (currentItem.isReviewed()) {
                 holder.getNotificationIcon().setVisibility(View.INVISIBLE);
             } else {

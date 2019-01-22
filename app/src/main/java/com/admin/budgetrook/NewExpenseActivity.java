@@ -127,8 +127,9 @@ public class NewExpenseActivity extends Activity {
     private class UpdateSpinnerTask extends AsyncTask<String, Integer, List<String>> {
         @Override
         protected List<String> doInBackground(String... strings) {
+            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             List<String> result = new ArrayList<String>();
-            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll();
+            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll(accountId);
             for (CategoryEntity category : categories) {
                 result.add(category.getName());
             }
@@ -146,23 +147,22 @@ public class NewExpenseActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             Boolean success = false;
             try {
-                AccountEntity accountEntity = AppDatabase.getInstance(getApplicationContext())
-                        .accountDao().getByLogin(PrefsHelper.getInstance().getCurrentUserLogin(getApplicationContext()));
+                int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
 
                 CategoryEntity category = AppDatabase.getInstance(getApplicationContext()).categoryDao().getByName(
-                        categorySelector.getSelectedItem().toString()
+                        categorySelector.getSelectedItem().toString(), accountId
                 );
                 String name = expenseName.getText().toString();
                 ExpenseEntity expense = new ExpenseEntity(
                         new BigDecimal(0), name, category.getUid(), new Date(), false,
-                        true, accountEntity.getUid()
+                        true, accountId
                 );
                 long expenseUid = AppDatabase.getInstance(getApplicationContext()).expenseDao().insert(expense);
 
                 Log.d(TAG, "doInBackground: imagePath " + imagePath);
                 Log.d(TAG, "doInBackground: imageData " + imageData.length);
                 if (imagePath != null && imageData != null) {
-                    ImageEntity imageEntity = new ImageEntity((int) expenseUid, imageData, imagePath);
+                    ImageEntity imageEntity = new ImageEntity((int) expenseUid, imageData, imagePath, accountId);
                     Log.d(TAG, "doInBackground: imageEntity " + imageEntity.toString());
                     AppDatabase.getInstance(getApplicationContext()).imageDao().insertAll(imageEntity);
                 }

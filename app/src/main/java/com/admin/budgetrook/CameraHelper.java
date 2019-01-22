@@ -30,7 +30,7 @@ public class CameraHelper {
         return c; // returns null if camera is unavailable
     }
 
-    public static Bitmap RotateBitmap(Bitmap source, float angle)
+    public static Bitmap rotateBitmap(Bitmap source, float angle)
     {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);

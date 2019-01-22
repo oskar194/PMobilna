@@ -16,6 +16,7 @@ import android.widget.ListView;
 import com.admin.budgetrook.adapters.ExpenseAdapter;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.helpers.PrefsHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class MyExpensesActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), ExpenseDetailView.class);
-                ExpenseEntity expense = (ExpenseEntity)parent.getItemAtPosition(position);
+                ExpenseEntity expense = (ExpenseEntity) parent.getItemAtPosition(position);
                 intent.putExtra("expenseUid", Long.toString(expense.getUid()));
                 startActivity(intent);
             }
@@ -60,11 +61,12 @@ public class MyExpensesActivity extends Activity {
 
         @Override
         protected List<ExpenseEntity> doInBackground(Void... voids) {
-            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll();
-            for(CategoryEntity category : categories){
-                categoriesMap.put(Integer.toString(category.getUid()), category.getName());
+            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll(accountId);
+            for (CategoryEntity category : categories) {
+                categoriesMap.put(Long.toString(category.getUid()), category.getName());
             }
-            return AppDatabase.getInstance(getApplicationContext()).expenseDao().getAll();
+            return AppDatabase.getInstance(getApplicationContext()).expenseDao().getAll(accountId);
         }
 
         @Override

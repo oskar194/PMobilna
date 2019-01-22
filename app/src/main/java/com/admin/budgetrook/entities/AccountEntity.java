@@ -8,18 +8,18 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity(indices = {@Index(value = {"login"}, unique = true)})
 public class AccountEntity {
     @PrimaryKey(autoGenerate = true)
-    private int uid;
+    private long uid;
     @ColumnInfo(name = "login")
     private String login;
     @ColumnInfo(name = "password")
     private String password;
     private long externalId;
 
-    public int getUid() {
+    public long getUid() {
         return uid;
     }
 
-    public void setUid(int uid) {
+    public void setUid(long uid) {
         this.uid = uid;
     }
 

@@ -9,17 +9,18 @@ import java.util.Date;
 @Entity
 public class ExpenseEntity {
     @PrimaryKey(autoGenerate = true)
-    private int uid;
+    private long uid;
     private BigDecimal amount;
-    private int categoryId;
+    private long categoryId;
     private String name;
     private Date date;
     private boolean isSynchronized;
     private boolean isReviewed;
-    private int accountId;
+    private long accountId;
     private long externalId;
 
-    public ExpenseEntity(BigDecimal amount, String name, int categoryId, Date date, Boolean isReviewed, Boolean isSynchronized, int accountId) {
+    public ExpenseEntity(BigDecimal amount, String name, long categoryId, Date date,
+                         Boolean isReviewed, Boolean isSynchronized, long accountId) {
         this.amount = amount;
         this.categoryId = categoryId;
         this.name = name;
@@ -29,11 +30,11 @@ public class ExpenseEntity {
         this.accountId = accountId;
     }
 
-    public int getUid() {
+    public long getUid() {
         return uid;
     }
 
-    public void setUid(int uid) {
+    public void setUid(long uid) {
         this.uid = uid;
     }
 
@@ -45,11 +46,11 @@ public class ExpenseEntity {
         this.amount = amount;
     }
 
-    public int getCategoryId() {
+    public long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(int categoryId) {
+    public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
     }
 
@@ -85,11 +86,11 @@ public class ExpenseEntity {
         isReviewed = reviewed;
     }
 
-    public int getAccountId() {
+    public long getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(int accountId) {
+    public void setAccountId(long accountId) {
         this.accountId = accountId;
     }
 
@@ -108,7 +109,7 @@ public class ExpenseEntity {
                 new ExpenseEntity(new BigDecimal(100.75), "Book", 2,
                         new Date(), true, true, 1),
                 new ExpenseEntity(new BigDecimal(75.55), "School", 3,
-                        new Date(), true, true,1)
+                        new Date(), true, true, 1)
         };
     }
 

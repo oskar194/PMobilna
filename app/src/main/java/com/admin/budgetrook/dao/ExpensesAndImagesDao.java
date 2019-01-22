@@ -11,10 +11,10 @@ import java.util.List;
 @Dao
 public interface ExpensesAndImagesDao {
     @Transaction
-    @Query("SELECT * FROM ExpenseEntity")
-    public List<ExpensesAndImages> getAll();
+    @Query("SELECT * FROM ExpenseEntity where accountId = :accountId")
+    public List<ExpensesAndImages> getAll(long accountId);
 
     @Transaction
-    @Query("SELECT * FROM ExpenseEntity WHERE uid = :expenseUid")
-    public ExpensesAndImages getByExpenseUid(int expenseUid);
+    @Query("SELECT * FROM ExpenseEntity WHERE uid = :expenseUid and accountId = :accountId")
+    public ExpensesAndImages getByExpenseUid(long expenseUid, long accountId);
 }

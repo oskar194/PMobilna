@@ -18,7 +18,7 @@ import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.entities.ImageEntity;
 
-@Database(entities = {AccountEntity.class, CategoryEntity.class, ExpenseEntity.class, ImageEntity.class}, version = 6, exportSchema = false)
+@Database(entities = {AccountEntity.class, CategoryEntity.class, ExpenseEntity.class, ImageEntity.class}, version = 7, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract AccountDao accountDao();

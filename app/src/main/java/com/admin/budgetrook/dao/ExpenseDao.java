@@ -13,8 +13,8 @@ import java.util.List;
 
 @Dao
 public interface ExpenseDao {
-    @Query("Select * from expenseEntity")
-    List<ExpenseEntity> getAll();
+    @Query("Select * from expenseEntity where accountId = :accountId")
+    List<ExpenseEntity> getAll(long accountId);
 
     @Insert
     void insertAll(ExpenseEntity... expenses);
@@ -22,26 +22,26 @@ public interface ExpenseDao {
     @Insert
     long insert(ExpenseEntity expense);
 
-    @Query("Select * from expenseEntity where date between :dateFrom and :dateTo")
-    List<ExpenseEntity> getBetween(Date dateFrom, Date dateTo);
+    @Query("Select * from expenseEntity where (date between :dateFrom and :dateTo) and accountId =:accountId")
+    List<ExpenseEntity> getBetween(Date dateFrom, Date dateTo, long accountId);
 
-    @Query("select * from expenseentity where uid = :uid")
-    ExpenseEntity getById(int uid);
+    @Query("select * from expenseentity where uid = :uid and accountId =:accountId")
+    ExpenseEntity getById(long uid, long accountId);
 
-    @Query("select * from expenseentity where categoryId= :categoryId")
-    List<ExpenseEntity> getByCategoryId(int categoryId);
+    @Query("select * from expenseentity where categoryId= :categoryId and accountId =:accountId")
+    List<ExpenseEntity> getByCategoryId(long categoryId, long accountId);
 
-    @Query("select sum(amount) from expenseentity")
-    Long expensesSum();
+    @Query("select sum(amount) from expenseentity where accountId = :accountId")
+    Long expensesSum(long accountId);
 
-    @Query("select * from expenseentity where isReviewed = 0")
-    List<ExpenseEntity> getNotReviewed();
+    @Query("select * from expenseentity where isReviewed = 0 and accountId = :accountId")
+    List<ExpenseEntity> getNotReviewed(long accountId);
 
-    @Query("select * from expenseentity where isSynchronized = 0")
-    List<ExpenseEntity> getNotSynchronized();
+    @Query("select * from expenseentity where isSynchronized = 0 and accountId = :accountId")
+    List<ExpenseEntity> getNotSynchronized(long accountId);
 
-    @Query("select count(uid) from expenseentity where isSynchronized = 1 and isReviewed = 0")
-    int getNumberOfExpensesToReview();
+    @Query("select count(uid) from expenseentity where isSynchronized = 1 and isReviewed = 0 and accountId = :accountId")
+    int getNumberOfExpensesToReview(long accountId);
 
     @Update
     void update(ExpenseEntity expense);

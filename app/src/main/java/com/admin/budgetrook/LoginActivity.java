@@ -1,6 +1,7 @@
 package com.admin.budgetrook;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,8 +16,10 @@ import android.widget.Toast;
 
 import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.helpers.PrefsHelper;
+import com.admin.budgetrook.interfaces.LoaderActivity;
+import com.admin.budgetrook.tasks.LoginTask;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements LoaderActivity {
 
     private EditText login;
     private EditText password;
@@ -104,6 +107,7 @@ public class LoginActivity extends Activity {
     private void proceedWithValidation(AccountEntity accountEntity) {
         loaderOff();
         if (accountEntity != null) {
+            new LoginTask(this).execute(accountEntity);
             PrefsHelper.getInstance().loginUser(getApplicationContext(), accountEntity);
             goToMainMenu();
         } else {
@@ -122,7 +126,8 @@ public class LoginActivity extends Activity {
         password.setError("Entered credentials are not valid");
     }
 
-    private void loaderOn() {
+    @Override
+    public void loaderOn() {
         inAnimation = new AlphaAnimation(0f, 1f);
         inAnimation.setDuration(200);
         progressBarHolder.setAnimation(inAnimation);
@@ -132,7 +137,8 @@ public class LoginActivity extends Activity {
         debugBtn.setEnabled(false);
     }
 
-    private void loaderOff() {
+    @Override
+    public void loaderOff() {
         outAnimation = new AlphaAnimation(1f, 0f);
         outAnimation.setDuration(200);
         progressBarHolder.setAnimation(outAnimation);
@@ -140,6 +146,16 @@ public class LoginActivity extends Activity {
         loginBtn.setEnabled(true);
         registerBtn.setEnabled(true);
         debugBtn.setEnabled(true);
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 
     private class FetchAccountTask extends AsyncTask<String, Void, AccountEntity> {

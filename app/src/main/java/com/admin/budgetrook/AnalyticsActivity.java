@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.admin.budgetrook.adapters.AnalyticsAdapter;
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
+import com.admin.budgetrook.helpers.PrefsHelper;
 import com.admin.budgetrook.interfaces.ChartFragmentInterface;
 
 import java.util.List;
@@ -45,8 +46,9 @@ public class AnalyticsActivity extends FragmentActivity implements ChartFragment
     private class FetchChartDataTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
+            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             chartData = AppDatabase.getInstance(getApplicationContext())
-                    .categoriesAndExpensesDao().getAll();
+                    .categoriesAndExpensesDao().getAll(accountId);
             Log.d("BUDGETROOK" , "chartData " + chartData);
             return null;
         }

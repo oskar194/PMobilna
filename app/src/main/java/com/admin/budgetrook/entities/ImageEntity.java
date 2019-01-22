@@ -9,27 +9,35 @@ import java.util.Arrays;
 @Entity
 public class ImageEntity {
     @PrimaryKey(autoGenerate = true)
-    private int uid;
-    private int expenseId;
+    private long uid;
+    private long expenseId;
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     private byte[] image;
-    private int accountId;
+    private long accountId;
     private long externalId;
+    private String path;
 
-    public ImageEntity(int expenseId, byte[] image, String path) {
+    public ImageEntity(long expenseId, byte[] image, String path, long accountId) {
         this.expenseId = expenseId;
         this.image = image;
         this.path = path;
+        this.accountId = accountId;
     }
 
-    private String path;
-
-    public int getUid() {
+    public long getUid() {
         return uid;
     }
 
-    public void setUid(int uid) {
+    public void setUid(long uid) {
         this.uid = uid;
+    }
+
+    public long getExpenseId() {
+        return expenseId;
+    }
+
+    public void setExpenseId(long expenseId) {
+        this.expenseId = expenseId;
     }
 
     public byte[] getImage() {
@@ -40,27 +48,11 @@ public class ImageEntity {
         this.image = image;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public int getExpenseId() {
-        return expenseId;
-    }
-
-    public void setExpenseId(int expenseId) {
-        this.expenseId = expenseId;
-    }
-
-    public int getAccountId() {
+    public long getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(int accountId) {
+    public void setAccountId(long accountId) {
         this.accountId = accountId;
     }
 
@@ -70,6 +62,14 @@ public class ImageEntity {
 
     public void setExternalId(long externalId) {
         this.externalId = externalId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     @Override

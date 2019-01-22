@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
@@ -33,6 +34,15 @@ public class CameraActivity extends Activity {
     private CameraHelper helper = new CameraHelper();
     public static final int MEDIA_TYPE_IMAGE = 1;
     private String savedImagePath = "";
+
+    AlphaAnimation inAnimation;
+    AlphaAnimation outAnimation;
+    FrameLayout progressBarHolder;
+
+    private Button captureButton;
+    private Button retakeButton;
+    private Button sendButton;
+
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
@@ -66,18 +76,11 @@ public class CameraActivity extends Activity {
         intent.putExtra(IMAGE_PATH, savedImagePath);
         setResult(NewExpenseActivity.RESULT_CODE, intent);
         finish();
-
-//        new Thread(new Runnable() {
-//            public void run() {
-//                Log.d(TAG, "Thread Odpalony");
-//                RestController.sendPhoto(mData);
-//            }
-//        }).start();
     }
 
     private byte[] createThumbnailByteArray(String savedImagePath) {
         Bitmap bitmap = decodeSampledBitmapFromFile(savedImagePath, 100, 100);
-        bitmap = CameraHelper.RotateBitmap(bitmap, 90);
+        bitmap = CameraHelper.rotateBitmap(bitmap, 90);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
@@ -88,19 +91,21 @@ public class CameraActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        progressBarHolder = (FrameLayout) findViewById(R.id.new_camera_progressBarHolder);
         if (helper.checkCameraHardware(this)) {
             mCamera = helper.getCameraInstance();
         }
         mPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
-        final Button captureButton = (Button) findViewById(R.id.button_capture);
-        final Button retakeButton = (Button) findViewById(R.id.button_retake);
-        final Button sendButton = (Button) findViewById(R.id.button_send);
+        captureButton = (Button) findViewById(R.id.button_capture);
+        retakeButton = (Button) findViewById(R.id.button_retake);
+        sendButton = (Button) findViewById(R.id.button_send);
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        loaderOn();
                         mCamera.takePicture(null, null, mPicture);
                         toggleButtons(v, Arrays.asList(captureButton, sendButton, retakeButton));
                     }
@@ -200,15 +205,13 @@ public class CameraActivity extends Activity {
         @Override
         protected String doInBackground(byte[]... bytes) {
 
+
             byte[] imageToSave = bytes[0];
 
             File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 
             try {
                 FileOutputStream fos = new FileOutputStream(file);
-//                Bitmap bitmapImage = BitmapFactory.decodeByteArray(mData, 0, mData.length);
-
-//                rotated.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 fos.write(imageToSave);
                 fos.flush();
                 fos.close();
@@ -221,8 +224,29 @@ public class CameraActivity extends Activity {
 
         @Override
         protected void onPostExecute(String filePath) {
+            loaderOff();
             savedImagePath = filePath;
         }
+    }
+
+    private void loaderOn() {
+        inAnimation = new AlphaAnimation(0f, 1f);
+        inAnimation.setDuration(100);
+        progressBarHolder.setAnimation(inAnimation);
+        progressBarHolder.setVisibility(View.VISIBLE);
+        retakeButton.setEnabled(false);
+        sendButton.setEnabled(false);
+        captureButton.setEnabled(false);
+    }
+
+    private void loaderOff() {
+        outAnimation = new AlphaAnimation(1f, 0f);
+        outAnimation.setDuration(100);
+        progressBarHolder.setAnimation(outAnimation);
+        progressBarHolder.setVisibility(View.GONE);
+        retakeButton.setEnabled(true);
+        sendButton.setEnabled(true);
+        captureButton.setEnabled(true);
     }
 
 }

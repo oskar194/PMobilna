@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.admin.budgetrook.apis.CategoryApi;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.helpers.ApiHelper;
+import com.admin.budgetrook.helpers.NoConnectivityException;
+import com.admin.budgetrook.helpers.PrefsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +60,7 @@ public class NewCategoryActivity extends Activity {
                 if (isNameValid(categoryName.getText().toString())) {
                     CategoryEntity category = new CategoryEntity(categoryName.getText().toString());
                     insertNewCategory(category);
-                    CategoryApi api = ApiHelper.getClient().create(CategoryApi.class);
+                    CategoryApi api = ApiHelper.getClient(getApplicationContext()).create(CategoryApi.class);
                     Call<CategoryEntity> call = api.postCategory(category);
                     call.enqueue(new Callback<CategoryEntity>() {
                         @Override
@@ -69,7 +71,10 @@ public class NewCategoryActivity extends Activity {
                         @Override
                         public void onFailure(Call<CategoryEntity> call, Throwable t) {
                             call.cancel();
-                            Toast.makeText(getApplicationContext(), "Request to remote failed", Toast.LENGTH_SHORT).show();
+                            if(t instanceof NoConnectivityException){
+                                Toast.makeText(getApplicationContext(), "Network unavailable", Toast.LENGTH_SHORT).show();
+                            }
+
                         }
                     });
                     finish();
@@ -116,6 +121,8 @@ public class NewCategoryActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+                category.setAccountId(accountId);
                 AppDatabase.getInstance(getApplicationContext()).categoryDao().insertAll(category);
             }
         }).start();
@@ -125,7 +132,9 @@ public class NewCategoryActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll();
+            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+
+            List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll(accountId);
             for (CategoryEntity category : categories) {
                 categoryNames.add(category.getName());
             }

@@ -12,6 +12,6 @@ import java.util.List;
 @Dao
 public interface CategoriesAndExpensesDao {
     @Transaction
-    @Query("SELECT * from CategoryEntity")
-    public List<CategoriesAndExpenses> getAll();
+    @Query("SELECT * from CategoryEntity where accountId = :accountId")
+    public List<CategoriesAndExpenses> getAll(long accountId);
 }

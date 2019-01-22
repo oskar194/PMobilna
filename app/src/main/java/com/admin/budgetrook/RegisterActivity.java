@@ -1,18 +1,23 @@
 package com.admin.budgetrook;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.admin.budgetrook.entities.AccountEntity;
+import com.admin.budgetrook.interfaces.LoaderActivity;
+import com.admin.budgetrook.tasks.RegisterUserTask;
 
-public class RegisterActivity extends Activity {
+public class RegisterActivity extends Activity implements LoaderActivity {
 
     private EditText login;
     private EditText password;
@@ -20,10 +25,16 @@ public class RegisterActivity extends Activity {
     private Button backBtn;
     private Button submitBtn;
 
+    AlphaAnimation inAnimation;
+    AlphaAnimation outAnimation;
+
+    FrameLayout progressBarHolder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        this.progressBarHolder = (FrameLayout) findViewById(R.id.register_progressBarHolder);
         login = (EditText) findViewById(R.id.login_et);
         password = (EditText) findViewById(R.id.password_et);
         repeatPassword = (EditText) findViewById(R.id.repeat_pass_et);
@@ -103,27 +114,29 @@ public class RegisterActivity extends Activity {
 
     private void submitRegisterForm() {
         if (validate()) {
-            HttpClient.registerNewAccount(new AccountEntity());
-            Toast.makeText(this, "Account with name " + login.getText().toString() + " created", Toast.LENGTH_SHORT).show();
+            AccountEntity account = new AccountEntity();
+            account.setLogin(login.getText().toString());
+            account.setPassword(password.getText().toString());
+            new RegisterUserTask(this).execute(account);
         }
     }
 
     private boolean validate() {
         boolean result = true;
         if (isValid()) {
-            result = result && true;
+            result = true;
         } else {
             showPassErrors();
             result = false;
         }
         if (isOriginal()) {
-            result = result && true;
+            result = true;
         } else {
             showOriginalityErrors();
             result = false;
         }
         if (isFilled()) {
-            result = result && true;
+            result = true;
         } else {
             showEmptyErrors();
             result = false;
@@ -181,5 +194,35 @@ public class RegisterActivity extends Activity {
         } else {
             return true;
         }
+    }
+
+    @Override
+    public void loaderOn() {
+        inAnimation = new AlphaAnimation(0f, 1f);
+        inAnimation.setDuration(200);
+        progressBarHolder.setAnimation(inAnimation);
+        progressBarHolder.setVisibility(View.VISIBLE);
+        submitBtn.setEnabled(false);
+        backBtn.setEnabled(false);
+    }
+
+    @Override
+    public void loaderOff() {
+        outAnimation = new AlphaAnimation(1f, 0f);
+        outAnimation.setDuration(200);
+        progressBarHolder.setAnimation(outAnimation);
+        progressBarHolder.setVisibility(View.GONE);
+        submitBtn.setEnabled(true);
+        backBtn.setEnabled(true);
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 }

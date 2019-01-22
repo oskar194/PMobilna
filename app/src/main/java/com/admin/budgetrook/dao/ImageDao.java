@@ -13,11 +13,11 @@ import java.util.List;
 @Dao
 public interface ImageDao {
 
-    @Query("SELECT * FROM imageEntity")
-    List<ImageEntity> getAll();
+    @Query("SELECT * FROM imageEntity where accountId = :accountId")
+    List<ImageEntity> getAll(long accountId);
 
-    @Query("SELECT * FROM imageentity WHERE expenseId = :expenseUid")
-    ImageEntity getByExpenseId(int expenseUid);
+    @Query("SELECT * FROM imageentity WHERE expenseId = :expenseUid and accountId =:accountId")
+    ImageEntity getByExpenseId(long expenseUid, long accountId);
 
     @Insert
     void insert(ImageEntity imageEntity);

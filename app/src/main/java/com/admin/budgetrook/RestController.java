@@ -120,7 +120,7 @@ public class RestController {
         try {
             outStream = new FileOutputStream(file);
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            Bitmap rotated = CameraHelper.RotateBitmap(bitmap, 90);
+            Bitmap rotated = CameraHelper.rotateBitmap(bitmap, 90);
             rotated.compress(Bitmap.CompressFormat.JPEG, 80, outStream);
             outStream.flush();
             outStream.close();

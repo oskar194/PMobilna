@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.helpers.PrefsHelper;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
@@ -46,8 +47,8 @@ public class MenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         chart = (PieChart) findViewById(R.id.chart);
-        notificationMessage = (TextView)findViewById(R.id.notification_tv);
-        notificationLayout = (LinearLayout)findViewById(R.id.notification_layout);
+        notificationMessage = (TextView) findViewById(R.id.notification_tv);
+        notificationLayout = (LinearLayout) findViewById(R.id.notification_layout);
     }
 
     private float getCategoryPercent(List<ExpenseEntity> categoryExpenses) {
@@ -95,10 +96,11 @@ public class MenuActivity extends Activity {
     private class FetchChartDataTask extends AsyncTask<Void, Void, List<CategoriesAndExpenses>> {
         @Override
         protected List<CategoriesAndExpenses> doInBackground(Void... params) {
+            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             List<CategoriesAndExpenses> categoriesAndExpenses =
-                    AppDatabase.getInstance(getApplicationContext()).categoriesAndExpensesDao().getAll();
+                    AppDatabase.getInstance(getApplicationContext()).categoriesAndExpensesDao().getAll(accountId);
             Log.d("BUDGETROOK", "categoriesAndExpenses" + categoriesAndExpenses.toString());
-            allAmount = AppDatabase.getInstance(getApplicationContext()).expenseDao().expensesSum();
+            allAmount = AppDatabase.getInstance(getApplicationContext()).expenseDao().expensesSum(accountId);
             Log.d("BUDGETROOK", "allAmount: " + allAmount);
             return categoriesAndExpenses;
         }
@@ -116,7 +118,8 @@ public class MenuActivity extends Activity {
 
         @Override
         protected Integer doInBackground(Void... params) {
-            Integer expensesToReview = AppDatabase.getInstance(getApplicationContext()).expenseDao().getNumberOfExpensesToReview();
+            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Integer expensesToReview = AppDatabase.getInstance(getApplicationContext()).expenseDao().getNumberOfExpensesToReview(accountId);
             return expensesToReview;
         }
 
