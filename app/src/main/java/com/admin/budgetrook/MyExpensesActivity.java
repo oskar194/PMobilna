@@ -61,7 +61,7 @@ public class MyExpensesActivity extends Activity {
 
         @Override
         protected List<ExpenseEntity> doInBackground(Void... voids) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll(accountId);
             for (CategoryEntity category : categories) {
                 categoriesMap.put(Long.toString(category.getUid()), category.getName());

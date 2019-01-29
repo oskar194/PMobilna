@@ -43,13 +43,11 @@ public class PrefsHelper {
     }
 
     public void loginUser(Context ctx, AccountEntity accountEntity) {
-        if (!isUserLogged(ctx)) {
-            getPrefs(ctx).edit()
-                    .putString(LOGIN_KEY, accountEntity.getLogin())
-                    .putLong(ID_KEY, accountEntity.getUid())
-                    .apply();
-            isUserLogged = true;
-        }
+        getPrefs(ctx).edit()
+                .putString(LOGIN_KEY, accountEntity.getLogin())
+                .putLong(ID_KEY, accountEntity.getUid())
+                .apply();
+        isUserLogged = true;
     }
 
     public void logoutUser(Context ctx, AccountEntity accountEntity) {
@@ -75,7 +73,7 @@ public class PrefsHelper {
         getPrefs(ctx).edit().putString(COOKIE_KEY, cookie).apply();
     }
 
-    public int getCurrentUserId(Context ctx) {
-        return getPrefs(ctx).getInt(ID_KEY, 0);
+    public Long getCurrentUserId(Context ctx) {
+        return getPrefs(ctx).getLong(ID_KEY, 0);
     }
 }

@@ -1,6 +1,7 @@
 package com.admin.budgetrook.apis;
 
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.wrappers.ExpenseWrapper;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -10,11 +11,11 @@ import retrofit2.http.POST;
 
 public interface ExpenseApi {
     @POST("/expense")
-    Call<ExpenseEntity> postExpense(@Body ExpenseEntity expenseEntity);
+    Call<ExpenseWrapper> postExpense(@Body ExpenseWrapper expenseWrapper);
 
     @PATCH("/expense")
-    Call<ExpenseEntity> updateExpense(@Body ExpenseEntity expenseEntity);
+    Call<ExpenseWrapper> updateExpense(@Body ExpenseWrapper expenseWrapper);
 
     @DELETE("/expense")
-    Call<ExpenseEntity> deleteExpense(@Body ExpenseEntity expenseEntity);
+    Call<ExpenseWrapper> deleteExpense(@Body ExpenseWrapper expenseWrapper);
 }

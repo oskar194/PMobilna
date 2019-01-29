@@ -11,4 +11,8 @@ public interface LoaderActivity {
     void showMessage(String message);
 
     Context getContext();
+
+    void finishTask();
+
+    void startTask();
 }

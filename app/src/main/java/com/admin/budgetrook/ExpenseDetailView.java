@@ -182,7 +182,7 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
 
         @Override
         protected SetupDto doInBackground(String... params) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             ExpenseEntity expense = AppDatabase.getInstance(getApplicationContext())
                     .expenseDao().getById(Integer.valueOf(params[0]), accountId);
             CategoryEntity category = AppDatabase.getInstance(getApplicationContext())
@@ -236,7 +236,7 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
     private class UpdateTask extends AsyncTask<SetupDto, Void, Void> {
         @Override
         protected Void doInBackground(SetupDto... setupDtos) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
 
             SetupDto setupDto = setupDtos[0];
             CategoryEntity category = AppDatabase.getInstance(getApplicationContext())
@@ -273,7 +273,7 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
 
         @Override
         protected Void doInBackground(Void... voids) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
 
             ExpenseEntity expenseEntity = AppDatabase.getInstance(getApplicationContext())
                     .expenseDao().getById(Integer.valueOf(expenseUid), accountId);

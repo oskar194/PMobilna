@@ -29,6 +29,8 @@ import java.util.Map;
 
 public class MenuActivity extends Activity {
 
+    private static final String TAG = "budgetrook";
+
     private static PieChart chart;
     private Long allAmount = 0L;
     private String msg = "BudgetRookApp: ";
@@ -38,6 +40,7 @@ public class MenuActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume: HI");
         new FetchChartDataTask().execute();
         new SetupNotificationTask().execute();
     }
@@ -45,6 +48,7 @@ public class MenuActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: HI");
         setContentView(R.layout.activity_menu);
         chart = (PieChart) findViewById(R.id.chart);
         notificationMessage = (TextView) findViewById(R.id.notification_tv);
@@ -96,7 +100,7 @@ public class MenuActivity extends Activity {
     private class FetchChartDataTask extends AsyncTask<Void, Void, List<CategoriesAndExpenses>> {
         @Override
         protected List<CategoriesAndExpenses> doInBackground(Void... params) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             List<CategoriesAndExpenses> categoriesAndExpenses =
                     AppDatabase.getInstance(getApplicationContext()).categoriesAndExpensesDao().getAll(accountId);
             Log.d("BUDGETROOK", "categoriesAndExpenses" + categoriesAndExpenses.toString());
@@ -118,7 +122,7 @@ public class MenuActivity extends Activity {
 
         @Override
         protected Integer doInBackground(Void... params) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             Integer expensesToReview = AppDatabase.getInstance(getApplicationContext()).expenseDao().getNumberOfExpensesToReview(accountId);
             return expensesToReview;
         }

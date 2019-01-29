@@ -1,6 +1,7 @@
 package com.admin.budgetrook;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,6 +17,8 @@ import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.helpers.ApiHelper;
 import com.admin.budgetrook.helpers.NoConnectivityException;
 import com.admin.budgetrook.helpers.PrefsHelper;
+import com.admin.budgetrook.interfaces.LoaderActivity;
+import com.admin.budgetrook.tasks.PostCategoryTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NewCategoryActivity extends Activity {
+public class NewCategoryActivity extends Activity implements LoaderActivity {
 
     private EditText categoryName;
     private Button addCategoryButton;
@@ -53,6 +56,7 @@ public class NewCategoryActivity extends Activity {
         addCategoryButton = (Button) findViewById(R.id.submit_btn);
         categoryName = (EditText) findViewById(R.id.name_et);
         cancel = (Button) findViewById(R.id.cancel_btn);
+        final PostCategoryTask postTask = new PostCategoryTask(this);
         addCategoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,28 +64,10 @@ public class NewCategoryActivity extends Activity {
                 if (isNameValid(categoryName.getText().toString())) {
                     CategoryEntity category = new CategoryEntity(categoryName.getText().toString());
                     insertNewCategory(category);
-                    CategoryApi api = ApiHelper.getClient(getApplicationContext()).create(CategoryApi.class);
-                    Call<CategoryEntity> call = api.postCategory(category);
-                    call.enqueue(new Callback<CategoryEntity>() {
-                        @Override
-                        public void onResponse(Call<CategoryEntity> call, Response<CategoryEntity> response) {
-                            Toast.makeText(getApplicationContext(), "Request to remote successful", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onFailure(Call<CategoryEntity> call, Throwable t) {
-                            call.cancel();
-                            if(t instanceof NoConnectivityException){
-                                Toast.makeText(getApplicationContext(), "Network unavailable", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-                    });
-                    finish();
+                    postTask.execute(category);
                 } else {
                     Toast.makeText(getApplicationContext(), "Category exist or empty", Toast.LENGTH_SHORT).show();
                 }
-                loaderOff();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -99,7 +85,8 @@ public class NewCategoryActivity extends Activity {
         return (!categoryNames.contains(name));
     }
 
-    private void loaderOn() {
+    @Override
+    public void loaderOn() {
         inAnimation = new AlphaAnimation(0f, 1f);
         inAnimation.setDuration(200);
         progressBarHolder.setAnimation(inAnimation);
@@ -108,7 +95,8 @@ public class NewCategoryActivity extends Activity {
         cancel.setEnabled(false);
     }
 
-    private void loaderOff() {
+    @Override
+    public void loaderOff() {
         outAnimation = new AlphaAnimation(1f, 0f);
         outAnimation.setDuration(200);
         progressBarHolder.setAnimation(outAnimation);
@@ -117,11 +105,31 @@ public class NewCategoryActivity extends Activity {
         cancel.setEnabled(true);
     }
 
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
+    public void finishTask() {
+        finish();
+    }
+
+    @Override
+    public void startTask() {
+
+    }
+
     private void insertNewCategory(final CategoryEntity category) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+                Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
                 category.setAccountId(accountId);
                 AppDatabase.getInstance(getApplicationContext()).categoryDao().insertAll(category);
             }
@@ -132,7 +140,7 @@ public class NewCategoryActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
 
             List<CategoryEntity> categories = AppDatabase.getInstance(getApplicationContext()).categoryDao().getAll(accountId);
             for (CategoryEntity category : categories) {

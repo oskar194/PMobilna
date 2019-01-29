@@ -30,6 +30,8 @@ public class RegisterActivity extends Activity implements LoaderActivity {
 
     FrameLayout progressBarHolder;
 
+    private int taskCounter = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -224,5 +226,18 @@ public class RegisterActivity extends Activity implements LoaderActivity {
     @Override
     public Context getContext() {
         return this;
+    }
+
+    @Override
+    public void finishTask() {
+        taskCounter--;
+        if(taskCounter == 0){
+            finish();
+        }
+    }
+
+    @Override
+    public void startTask() {
+        taskCounter++;
     }
 }

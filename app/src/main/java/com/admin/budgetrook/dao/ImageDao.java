@@ -20,7 +20,7 @@ public interface ImageDao {
     ImageEntity getByExpenseId(long expenseUid, long accountId);
 
     @Insert
-    void insert(ImageEntity imageEntity);
+    long insert(ImageEntity imageEntity);
 
     @Insert
     void insertAll(ImageEntity... imageEntities);

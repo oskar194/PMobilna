@@ -74,7 +74,7 @@ public class CameraActivity extends Activity {
         Intent intent = new Intent();
         intent.putExtra(IMAGE_BYTE_ARRAY, image);
         intent.putExtra(IMAGE_PATH, savedImagePath);
-        setResult(NewExpenseActivity.RESULT_CODE, intent);
+        //setResult(NewExpenseActivity.RESULT_CODE, intent);
         finish();
     }
 

@@ -31,6 +31,7 @@ public class LoginActivity extends Activity implements LoaderActivity {
     private AlphaAnimation outAnimation;
 
     private FrameLayout progressBarHolder;
+    private int tasksCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +97,6 @@ public class LoginActivity extends Activity implements LoaderActivity {
     }
 
     private void submitLoginForm() {
-        loaderOn();
         new FetchAccountTask().execute(login.getText().toString(), password.getText().toString());
     }
 
@@ -105,11 +105,8 @@ public class LoginActivity extends Activity implements LoaderActivity {
     }
 
     private void proceedWithValidation(AccountEntity accountEntity) {
-        loaderOff();
         if (accountEntity != null) {
             new LoginTask(this).execute(accountEntity);
-            PrefsHelper.getInstance().loginUser(getApplicationContext(), accountEntity);
-            goToMainMenu();
         } else {
             showError();
         }
@@ -158,7 +155,25 @@ public class LoginActivity extends Activity implements LoaderActivity {
         return this;
     }
 
+    @Override
+    public synchronized void finishTask() {
+        tasksCounter--;
+        if (tasksCounter == 0) {
+            goToMainMenu();
+        }
+    }
+
+    @Override
+    public synchronized void startTask() {
+        tasksCounter++;
+    }
+
     private class FetchAccountTask extends AsyncTask<String, Void, AccountEntity> {
+
+        @Override
+        protected void onPreExecute() {
+            loaderOn();
+        }
 
         @Override
         protected AccountEntity doInBackground(String... credentials) {
@@ -176,6 +191,7 @@ public class LoginActivity extends Activity implements LoaderActivity {
 
         @Override
         protected void onPostExecute(AccountEntity accountEntity) {
+            loaderOff();
             proceedWithValidation(accountEntity);
         }
     }

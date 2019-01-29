@@ -17,5 +17,8 @@ public interface AccountDao {
     AccountEntity getByLogin(String login);
 
     @Insert
+    long insert(AccountEntity accountEntity);
+
+    @Insert
     void insertAll(AccountEntity... accounts);
 }

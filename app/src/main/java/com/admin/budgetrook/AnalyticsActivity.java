@@ -46,7 +46,7 @@ public class AnalyticsActivity extends FragmentActivity implements ChartFragment
     private class FetchChartDataTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            int accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
+            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
             chartData = AppDatabase.getInstance(getApplicationContext())
                     .categoriesAndExpensesDao().getAll(accountId);
             Log.d("BUDGETROOK" , "chartData " + chartData);

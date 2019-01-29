@@ -9,7 +9,8 @@ public class DbHelper {
     public static AppDatabase getDb(Context context){
         if(db == null){
             db = Room.databaseBuilder(context,
-                    AppDatabase.class, "database-name").build();
+                    AppDatabase.class, "my-database")
+                    .fallbackToDestructiveMigration().build();
         }
         return db;
     }
