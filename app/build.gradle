@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 28
     buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.admin.budgetrook"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -26,9 +26,13 @@ dependencies {
     })
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.loopj.android:android-async-http:1.4.9'
-    implementation 'com.android.support:support-v4:25.3.1'
-    implementation 'com.android.support:support-compat:25.3.1'
-    implementation 'com.android.support:support-core-ui:25.3.1'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:support-compat:28.0.0'
+    implementation 'com.android.support:support-core-ui:28.0.0'
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+
     implementation ('com.squareup.retrofit2:retrofit:2.5.0'){
         exclude group: 'okhttp'
     }
