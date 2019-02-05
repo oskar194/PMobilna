@@ -3,7 +3,6 @@ package com.admin.budgetrook.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.admin.budgetrook.AppDatabase;
 import com.admin.budgetrook.DbHelper;
@@ -16,7 +15,6 @@ import com.admin.budgetrook.interfaces.LoaderActivity;
 import com.admin.budgetrook.wrappers.CategoryWrapper;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 public class PostCategoryTask extends AsyncTask<CategoryEntity, Void, String> {
@@ -43,19 +41,24 @@ public class PostCategoryTask extends AsyncTask<CategoryEntity, Void, String> {
             Long accountId = PrefsHelper.getInstance().getCurrentUserId(listener.getContext());
             CategoryEntity entity = categoryEntities[0];
             AppDatabase db = DbHelper.getDb(listener.getContext());
-            CategoryEntity refetch = db.categoryDao().getByName(entity.getName(), accountId);
+
+            entity.setAccountId(accountId);
+            long id = db.categoryDao().insert(entity);
+            entity.setUid(id);
+
             CategoryApi api = ApiHelper.getClient(listener.getContext()).create(CategoryApi.class);
-            Call<CategoryWrapper> call = api.postCategory(new CategoryWrapper(refetch, username));
+            Call<CategoryWrapper> call = api.postCategory(new CategoryWrapper(entity, username));
             Response<CategoryWrapper> response = call.execute();
             if (response.isSuccessful()) {
                 message = "Category posted successfully";
                 CategoryWrapper wrapper = response.body();
-                refetch.setExternalId(wrapper.externalId);
-                refetch.setSynchronized(true);
-                db.categoryDao().updateAll(refetch);
+                entity.setExternalId(wrapper.externalId);
+                entity.setSynchronized(true);
+                db.categoryDao().updateAll(entity);
             } else {
                 message = "Remote unavailable";
             }
+
         } catch (Exception e) {
             this.e = e;
         }
@@ -65,13 +68,13 @@ public class PostCategoryTask extends AsyncTask<CategoryEntity, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         if (e != null) {
-            Log.e(TAG, "onPostExecute: " + e.getMessage(), e.getCause());
+            Log.e(TAG, "onPostExecute: ", e);
             if (e instanceof NoConnectivityException) {
                 message = "Network unavailable";
             }
         }
-        listener.loaderOff();
         listener.showMessage(message);
+        listener.loaderOff();
         listener.finishTask();
     }
 }

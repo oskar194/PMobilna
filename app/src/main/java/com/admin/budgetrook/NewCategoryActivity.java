@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -29,7 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NewCategoryActivity extends Activity implements LoaderActivity {
+public class NewCategoryActivity extends AppCompatActivity implements LoaderActivity {
 
     private EditText categoryName;
     private Button addCategoryButton;
@@ -63,7 +64,6 @@ public class NewCategoryActivity extends Activity implements LoaderActivity {
                 loaderOn();
                 if (isNameValid(categoryName.getText().toString())) {
                     CategoryEntity category = new CategoryEntity(categoryName.getText().toString());
-                    insertNewCategory(category);
                     postTask.execute(category);
                 } else {
                     Toast.makeText(getApplicationContext(), "Category exist or empty", Toast.LENGTH_SHORT).show();
@@ -123,17 +123,6 @@ public class NewCategoryActivity extends Activity implements LoaderActivity {
     @Override
     public void startTask() {
 
-    }
-
-    private void insertNewCategory(final CategoryEntity category) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
-                category.setAccountId(accountId);
-                AppDatabase.getInstance(getApplicationContext()).categoryDao().insertAll(category);
-            }
-        }).start();
     }
 
     private class GetAllCategoriesTask extends AsyncTask<Void, Void, Void> {

@@ -1,7 +1,8 @@
 package com.admin.budgetrook.dialogs;
 
 import android.app.Activity;
-import android.app.DialogFragment;
+import android.content.Context;
+import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,18 +20,21 @@ import java.util.Date;
 
 public class DatePickerFragment extends DialogFragment {
     private static final String DATE_ARG = "dateArg";
+    private static final String ID_ARG = "idArg";
     private String date;
     private DatePicker datePicker;
+    private String id;
     private OnFragmentInteractionListener mListener;
 
     public DatePickerFragment() {
         // Required empty public constructor
     }
 
-    public static DatePickerFragment newInstance(String date) {
+    public static DatePickerFragment newInstance(String date, String id) {
         DatePickerFragment fragment = new DatePickerFragment();
         Bundle args = new Bundle();
         args.putString(DATE_ARG, date);
+        args.putString(ID_ARG, id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -39,7 +43,9 @@ public class DatePickerFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            date = getArguments().getString(DATE_ARG);
+            Bundle bundle = getArguments();
+            date = bundle.getString(DATE_ARG);
+            id = bundle.getString(ID_ARG);
         }
     }
 
@@ -73,7 +79,7 @@ public class DatePickerFragment extends DialogFragment {
                         datePicker.getDayOfMonth(),
                         0, 0, 0
                 );
-                mListener.onFragmentInteraction(cal.getTime());
+                mListener.onFragmentInteraction(cal.getTime(), id);
             }
         });
         Button cancel = (Button) view.findViewById(R.id.date_fragment_cancel);
@@ -88,7 +94,19 @@ public class DatePickerFragment extends DialogFragment {
 
     public void onButtonPressed(Date date) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(date);
+            mListener.onFragmentInteraction(date, id);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+            Log.d("BUDGETROOK", "Fragment created callback");
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
         }
     }
 
@@ -111,7 +129,7 @@ public class DatePickerFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Date date);
+        void onFragmentInteraction(Date date, String id);
 
         void finishDialog();
     }

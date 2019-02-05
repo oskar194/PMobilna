@@ -4,4 +4,15 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="maxValue">#FF1111</color>
+
+    <color name="labelsEntry">#000</color>
+
+    <color name="color1">   #ffb3ba</color>
+    <color name="color2">   #ffdfba</color>
+    <color name="color3">   #ffffba</color>
+    <color name="color4">   #baffc9</color>
+    <color name="color5">   #bae1ff</color>
+    <color name="color6">   #ccffff</color>
+    <color name="color7">   #ffccff</color>
+    <color name="color8">   #ccb6ff</color>
 </resources>

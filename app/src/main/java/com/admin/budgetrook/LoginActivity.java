@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -19,7 +20,7 @@ import com.admin.budgetrook.helpers.PrefsHelper;
 import com.admin.budgetrook.interfaces.LoaderActivity;
 import com.admin.budgetrook.tasks.LoginTask;
 
-public class LoginActivity extends Activity implements LoaderActivity {
+public class LoginActivity extends AppCompatActivity implements LoaderActivity {
 
     private EditText login;
     private EditText password;

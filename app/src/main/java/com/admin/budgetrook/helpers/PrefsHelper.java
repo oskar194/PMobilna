@@ -50,7 +50,7 @@ public class PrefsHelper {
         isUserLogged = true;
     }
 
-    public void logoutUser(Context ctx, AccountEntity accountEntity) {
+    public void logoutUser(Context ctx) {
         if (isUserLogged(ctx)) {
             getPrefs(ctx).edit()
                     .putString(LOGIN_KEY, null)

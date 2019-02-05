@@ -22,7 +22,7 @@ public interface ExpenseDao {
     @Insert
     long insert(ExpenseEntity expense);
 
-    @Query("Select * from expenseEntity where (date between :dateFrom and :dateTo) and accountId =:accountId")
+    @Query("Select * from expenseEntity where (date between :dateFrom and :dateTo) and accountId =:accountId and isReviewed = 1 order by date asc ")
     List<ExpenseEntity> getBetween(Date dateFrom, Date dateTo, long accountId);
 
     @Query("select * from expenseentity where uid = :uid and accountId =:accountId")

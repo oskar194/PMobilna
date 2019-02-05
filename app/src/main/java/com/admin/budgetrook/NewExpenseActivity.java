@@ -1,6 +1,5 @@
 package com.admin.budgetrook;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -24,15 +24,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.entities.ImageEntity;
 import com.admin.budgetrook.helpers.PrefsHelper;
 import com.admin.budgetrook.interfaces.LoaderActivity;
-import com.admin.budgetrook.tasks.PostAndProcessImageTask;
 import com.admin.budgetrook.tasks.PostExpenseTask;
-import com.admin.budgetrook.tasks.PostImageTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class NewExpenseActivity extends Activity implements LoaderActivity {
+public class NewExpenseActivity extends AppCompatActivity implements LoaderActivity {
 
     public static final int REQUEST_IMAGE_CAPTURE = 100;
     private static final String TAG = "BUDGETROOK";
@@ -111,10 +108,11 @@ public class NewExpenseActivity extends Activity implements LoaderActivity {
     }
 
     private void setupSpinner(List<String> labels) {
+        Log.d(TAG, "setupSpinner: "+ labels.toString());
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getApplicationContext(),
                 R.layout.custom_spinner_item, labels);
         categorySelector.setAdapter(dataAdapter);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_item);
     }
 
     private void startCameraActivity(View v) {
@@ -145,12 +143,11 @@ public class NewExpenseActivity extends Activity implements LoaderActivity {
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,
+                ".jpg",
+                storageDir
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
         imagePath = image.getAbsolutePath();
         return image;
     }
@@ -167,11 +164,9 @@ public class NewExpenseActivity extends Activity implements LoaderActivity {
     }
 
     private void setPic() {
-        // Get the dimensions of the View
         int targetW = photoView.getWidth();
         int targetH = photoView.getHeight();
 
-        // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(imagePath, bmOptions);
@@ -322,4 +317,3 @@ public class NewExpenseActivity extends Activity implements LoaderActivity {
     }
 
 }
-

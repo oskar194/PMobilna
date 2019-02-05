@@ -1,10 +1,10 @@
 package com.admin.budgetrook;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,29 +14,35 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
-import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.helpers.FileChooserHelper;
 import com.admin.budgetrook.helpers.PrefsHelper;
+import com.admin.budgetrook.interfaces.LoaderActivity;
+import com.admin.budgetrook.tasks.CreateCsvFileTask;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 
-public class MenuActivity extends AppCompatActivity {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MenuActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderActivity {
 
     private static final String TAG = "budgetrook";
+
+    private static final int GET_DIRCTORY_REQUEST = 43;
 
     private static PieChart chart;
     private Long allAmount = 0L;
@@ -46,6 +52,14 @@ public class MenuActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
 
+    private AlphaAnimation inAnimation;
+    private AlphaAnimation outAnimation;
+
+    private Button addExpenseBtn;
+    private Button analyticsBtn;
+    private Button myExpensesBtn;
+
+    private FrameLayout progressBarHolder;
 
     @Override
     protected void onResume() {
@@ -60,49 +74,15 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: HI");
         setContentView(R.layout.activity_menu);
-
+        progressBarHolder = (FrameLayout) findViewById(R.id.menu_progressBarHolder);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        mDrawerLayout.addDrawerListener(
-                new DrawerLayout.DrawerListener() {
-                    @Override
-                    public void onDrawerSlide(View drawerView, float slideOffset) {
-                        // Respond when the drawer's position changes
-                    }
-
-                    @Override
-                    public void onDrawerOpened(View drawerView) {
-                        // Respond when the drawer is opened
-                    }
-
-                    @Override
-                    public void onDrawerClosed(View drawerView) {
-                        // Respond when the drawer is closed
-                    }
-
-                    @Override
-                    public void onDrawerStateChanged(int newState) {
-                        // Respond when the drawer motion state changes
-                    }
-                }
-        );
+        addExpenseBtn = (Button) findViewById(R.id.addExpense);
+        analyticsBtn = (Button) findViewById(R.id.analyticsBtn);
+        myExpensesBtn = (Button) findViewById(R.id.myExpensesBtn);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        // set item as selected to persist highlight
-                        menuItem.setChecked(true);
-                        // close drawer when item is tapped
-                        mDrawerLayout.closeDrawers();
-
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
-
-                        return true;
-                    }
-                });
+        navigationView.setNavigationItemSelectedListener(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -111,7 +91,9 @@ public class MenuActivity extends AppCompatActivity {
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         chart = (PieChart) findViewById(R.id.chart);
+
         notificationMessage = (TextView) findViewById(R.id.notification_tv);
+
         notificationLayout = (LinearLayout) findViewById(R.id.notification_layout);
     }
 
@@ -137,11 +119,21 @@ public class MenuActivity extends AppCompatActivity {
             entries.add(new PieEntry(categorySum, element.getCategory().getName()));
         }
         PieDataSet ds = new PieDataSet(entries, "Expenses");
-        ds.setSliceSpace(10);
-        ds.setColors(new int[]{R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark}, getApplicationContext());
+        ds.setSliceSpace(5);
+        ds.setColors(new int[]{
+                R.color.color1,
+                R.color.color2,
+                R.color.color3,
+                R.color.color4,
+                R.color.color5,
+                R.color.color6
+        }, getApplicationContext());
+        chart.setCenterText("Expenses percentage");
+        chart.setTransparentCircleAlpha(30);
         chart.setData(new PieData(ds));
         chart.invalidate();
         chart.setDescription(null);
+        chart.setEntryLabelColor(R.color.labelsEntry);
         chart.getLegend().setEnabled(false);
     }
 
@@ -155,6 +147,43 @@ public class MenuActivity extends AppCompatActivity {
 
     public void goToAnalytics(View view) {
         startActivity(new Intent(this, AnalyticsActivity.class));
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // set item as selected to persist highlight
+        // close drawer when item is tapped
+        Log.d(TAG, "onNavigationItemSelected: menuItemId: " + item.getItemId());
+        switch (item.getItemId()) {
+            case R.id.nav_export: {
+                try {
+                    startActivityForResult(FileChooserHelper.createFile(this, "text/csv"), GET_DIRCTORY_REQUEST);
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "You don't have any application for creating documents!", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "onNavigationItemSelected: ", e);
+                }
+                break;
+            }
+            case R.id.nav_logout : {
+                PrefsHelper.getInstance().logoutUser(this);
+                finish();
+                break;
+            }
+        }
+        item.setChecked(true);
+        mDrawerLayout.closeDrawers();
+        return true;
+
+    }
+
+    @Override
+    public void finishTask() {
+
+    }
+
+    @Override
+    public void startTask() {
+
     }
 
     private class FetchChartDataTask extends AsyncTask<Void, Void, List<CategoriesAndExpenses>> {
@@ -212,4 +241,52 @@ public class MenuActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == GET_DIRCTORY_REQUEST) {
+            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+                File file = FileChooserHelper.handleDirectoryChoice(
+                        data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
+                if (file == null) {
+                    Toast.makeText(this,
+                            "Can't create the file in selected directory",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    new CreateCsvFileTask(this, file).execute();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void loaderOn() {
+        inAnimation = new AlphaAnimation(0f, 1f);
+        inAnimation.setDuration(200);
+        progressBarHolder.setAnimation(inAnimation);
+        progressBarHolder.setVisibility(View.VISIBLE);
+        addExpenseBtn.setEnabled(false);
+        myExpensesBtn.setEnabled(false);
+        analyticsBtn.setEnabled(false);
+    }
+
+    @Override
+    public void loaderOff() {
+        outAnimation = new AlphaAnimation(1f, 0f);
+        outAnimation.setDuration(200);
+        progressBarHolder.setAnimation(outAnimation);
+        progressBarHolder.setVisibility(View.GONE);
+        addExpenseBtn.setEnabled(true);
+        myExpensesBtn.setEnabled(true);
+        analyticsBtn.setEnabled(true);
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
+    }
 }

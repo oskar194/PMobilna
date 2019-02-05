@@ -19,9 +19,13 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LineChartFragment extends Fragment {
     private List<CategoriesAndExpenses> chartData;
@@ -52,19 +56,31 @@ public class LineChartFragment extends Fragment {
         chart = (LineChart) v.findViewById(R.id.line_chart_fragment_chart);
 
 
-        setup();
+        mListener.getExpensesForLine();
         return v;
     }
 
-    public void setup() {
+    public void pushData(List<CategoriesAndExpenses> categoriesAndExpenses) {
         if (mListener != null) {
-            chartData = mListener.getData();
+            if(categoriesAndExpenses != null && categoriesAndExpenses.isEmpty()){
+                return;
+            }
+            chartData = categoriesAndExpenses;
             List<Entry> entries = new ArrayList<Entry>();
+            Map<Date, BigDecimal> values = new HashMap<Date, BigDecimal>();
             for (CategoriesAndExpenses item : chartData) {
                 List<ExpenseEntity> expenses = item.getExpenses();
+                BigDecimal aggregate = new BigDecimal(0);
                 for (ExpenseEntity expense : expenses) {
-                    entries.add(new Entry(expense.getDate().getTime(), expense.getAmount().floatValue()));
+                    if(values.get(expense.getDate()) != null){
+                        values.put(expense.getDate(), values.get(expense.getDate()).add(expense.getAmount()));
+                    } else {
+                        values.put(expense.getDate(), expense.getAmount());
+                    }
                 }
+            }
+            for(Date key : values.keySet()){
+                entries.add(new Entry(key.getTime(), values.get(key).floatValue()));
             }
             Collections.sort(entries, new EntryXComparator());
             LineDataSet data = new LineDataSet(entries, "Expenses");

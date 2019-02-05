@@ -1,44 +1,50 @@
 package com.admin.budgetrook.fragments;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.Toast;
 
 import com.admin.budgetrook.R;
-import com.admin.budgetrook.XAxisFormatters.DaysXAxisFormatter;
-import com.admin.budgetrook.XAxisFormatters.MonthXAxisFormatter;
-import com.admin.budgetrook.XAxisFormatters.YearsXAxisFormatter;
+import com.admin.budgetrook.XAxisFormatters.IndexedDatesXAxisFormatter;
 import com.admin.budgetrook.customDataSets.ColoredMaxDataSet;
-import com.admin.budgetrook.entities.CategoriesAndExpenses;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.interfaces.ChartFragmentInterface;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-
-import static com.admin.budgetrook.helpers.DateSplitHelper.PeriodSetting;
-import static com.admin.budgetrook.helpers.DateSplitHelper.getKeyBySetting;
+import java.util.Map;
 
 public class BarChartFragment extends Fragment {
-    private List<CategoriesAndExpenses> chartData;
+
+    public static final String ENTRIES = "entries";
+    public static final String DATES = "dates";
+    public static final String EXPENSES = "Expenses";
+    private List<ExpenseEntity> chartData;
     private ChartFragmentInterface mListener;
 
-    private BarChart chart;
-    private Spinner periodSpinner;
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-    private PeriodSetting setting = PeriodSetting.DAYS;
+    private BarChart chart;
+
+    private Button fromButton;
+    private Button toButton;
+    private Button okButton;
 
     public BarChartFragment() {
         // Required empty public constructor
@@ -57,108 +63,139 @@ public class BarChartFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_bar_chart, container, false);
-        chart = (BarChart) v.findViewById(R.id.bar_chart_fragment_chart);
-        periodSpinner = (Spinner) v.findViewById(R.id.bar_fragment_period_sp);
-        setup();
-        setupSpinner();
+        fromButton = v.findViewById(R.id.bar_chart_from_button);
+        fromButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int mYear, mMonth, mDay;
+                Date d = new Date();
+                try {
+                    d = dateFormat.parse(fromButton.getText().toString());
+                } catch (Exception e) {
+
+                }
+                final Calendar c = Calendar.getInstance();
+                c.setTime(d);
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+
+                                fromButton.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+            }
+        });
+        toButton = v.findViewById(R.id.bar_chart_to_button);
+        toButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int mYear, mMonth, mDay;
+
+                Date d = new Date();
+                try {
+                    d = dateFormat.parse(toButton.getText().toString());
+                } catch (Exception e) {
+
+                }
+                final Calendar c = Calendar.getInstance();
+                c.setTime(d);
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+
+                                toButton.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+            }
+        });
+        okButton = v.findViewById(R.id.bar_chart_ok_button);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    mListener.getDataWithinDates(dateFormat.parse(fromButton.getText().toString()), dateFormat.parse(toButton.getText().toString()));
+                } catch (Exception e) {
+                    Toast.makeText(getActivity(), "Add both dates", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        chart = v.findViewById(R.id.bar_chart_fragment_chart);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, -1);
+        fromButton.setText(dateFormat.format(calendar.getTime()));
+        toButton.setText(dateFormat.format(new Date()));
+        mListener.getDataWithinDates(calendar.getTime(), new Date());
         return v;
     }
 
-    private void setupSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.custom_spinner_item, getPeriodStrings());
-        periodSpinner.setAdapter(adapter);
-        periodSpinner.setSelection(0);
-
-        periodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setting = PeriodSetting.values()[position];
-                List<BarEntry> entries = convertDataBySetting(chartData, setting);
-                ColoredMaxDataSet dataSet = new ColoredMaxDataSet(entries, "Expenses");
-                dataSet.setColors(getResources().getColor(R.color.colorPrimary), getResources().getColor(R.color.maxValue));
-                BarData barData = new BarData(dataSet);
-                chart.getXAxis().setValueFormatter(getFormatterBySetting(setting));
-                chart.setData(barData);
-                chart.notifyDataSetChanged();
-                chart.invalidate();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
-
-    public void setup() {
-        if (mListener != null) {
-            chartData = mListener.getData();
-            List<BarEntry> entries = convertDataBySetting(chartData, setting);
-            ColoredMaxDataSet dataSet = new ColoredMaxDataSet(entries, "Expenses");
-            dataSet.setColors(R.color.colorPrimary, R.color.maxValue);
-            BarData barData = new BarData(dataSet);
-            barData.setBarWidth(0.9f); // set custom bar width
-            chart.setFitBars(true); // make the x-axis fit exactly all bars
-            chart.getXAxis().setValueFormatter(getFormatterBySetting(setting));
-            chart.getXAxis().setGranularity(0);
-            chart.setData(barData);
-            chart.setDescription(null);
-            chart.getLegend().setEnabled(false);
-            chart.notifyDataSetChanged();
-            chart.invalidate();
+    public void pushData(List<ExpenseEntity> expenseEntities) {
+        if (expenseEntities != null && expenseEntities.isEmpty()) {
+            return;
         }
+        Map<String, Object> entries = convertData(expenseEntities);
+        ColoredMaxDataSet dataSet = new ColoredMaxDataSet((List<BarEntry>) entries.get(ENTRIES), EXPENSES);
+        chart.getXAxis().setValueFormatter(new IndexedDatesXAxisFormatter((List<Date>) entries.get(DATES), dateFormat));
+        if (dataSet.getEntryCount() > 5) {
+            chart.getXAxis().setLabelCount(5, true);
+        } else {
+            chart.getXAxis().setLabelCount(dataSet.getEntryCount(), true);
+        }
+        dataSet.setColors(getResources().getColor(R.color.color4), getResources().getColor(R.color.maxValue));
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.5f);
+        chart.setData(barData);
+        chart.setFitBars(true);
+        chart.setDescription(null);
+        chart.getLegend().setEnabled(false);
+        chart.notifyDataSetChanged();
+        chart.invalidate();
     }
 
-    private List<BarEntry> convertDataBySetting(List<CategoriesAndExpenses> rawData, PeriodSetting setting) {
+    private Map<String, Object> convertData(List<ExpenseEntity> expenseEntities) {
         List<BarEntry> entries = new ArrayList<BarEntry>();
-        HashMap<Integer, Float> data = new HashMap<Integer, Float>();
-        for (CategoriesAndExpenses item : rawData) {
-            List<ExpenseEntity> expenses = item.getExpenses();
-            for (ExpenseEntity expense : expenses) {
-                int key = getKeyBySetting(expense, setting);
-                float amount = expense.getAmount().floatValue();
-                if (data.containsKey(key)) {
-                    amount += data.get(key);
-                }
-                data.put(key, amount);
+        List<Date> dates = new ArrayList<Date>();
+        Map<Date, BigDecimal> aggregate = new HashMap<Date, BigDecimal>();
+        for (ExpenseEntity expense : expenseEntities) {
+            if (aggregate.get(expense.getDate()) != null) {
+                aggregate.put(expense.getDate(),
+                        aggregate.get(expense.getDate()).add(expense.getAmount()));
+            } else {
+                aggregate.put(expense.getDate(), expense.getAmount());
             }
         }
-        for (Integer key : data.keySet()) {
-            entries.add(new BarEntry(key, data.get(key)));
+        int index = 0;
+        for (Date key : aggregate.keySet()) {
+            dates.add(key);
+            entries.add(new BarEntry(index, aggregate.get(key).floatValue()));
+            index++;
         }
-        return entries;
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put(ENTRIES, entries);
+        result.put(DATES, dates);
+        return result;
     }
 
-    private IAxisValueFormatter getFormatterBySetting(PeriodSetting setting) {
-        Locale locale = getResources().getConfiguration().locale;
-        switch (setting) {
-            case DAYS: {
-                chart.getXAxis().setLabelCount(7, true);
-                chart.getXAxis().setAxisMinimum(1);
-                chart.getXAxis().setAxisMaximum(7);
-                chart.getXAxis().setGranularity(1);
-                return new DaysXAxisFormatter(locale);
-            }
-            case MONTHS: {
-                chart.getXAxis().setLabelCount(12);
-                chart.getXAxis().setAxisMinimum(0);
-                chart.getXAxis().setAxisMaximum(11);
-                chart.getXAxis().setGranularity(1);
-                return new MonthXAxisFormatter(locale);
-            }
-            case YEARS: {
-                chart.getXAxis().setLabelCount(5);
-                chart.getXAxis().setGranularity(1);
-                chart.getXAxis().resetAxisMaximum();
-                chart.getXAxis().resetAxisMinimum();
-                return new YearsXAxisFormatter();
-            }
-            default: {
-                return new DaysXAxisFormatter(locale);
-            }
-        }
-    }
 
     @Override
     public void onAttach(Activity context) {
@@ -175,15 +212,5 @@ public class BarChartFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-
-    private List<String> getPeriodStrings() {
-        List<String> result = new ArrayList<String>();
-        PeriodSetting[] vals = PeriodSetting.values();
-        for (PeriodSetting item : vals) {
-            result.add(item.toString());
-        }
-        return result;
     }
 }

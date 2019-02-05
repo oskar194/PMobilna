@@ -1,56 +1,80 @@
 package com.admin.budgetrook;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.admin.budgetrook.adapters.AnalyticsAdapter;
 import com.admin.budgetrook.entities.CategoriesAndExpenses;
+import com.admin.budgetrook.entities.ExpenseEntity;
+import com.admin.budgetrook.fragments.BarChartFragment;
+import com.admin.budgetrook.fragments.LineChartFragment;
+import com.admin.budgetrook.fragments.RadarChartFragment;
 import com.admin.budgetrook.helpers.PrefsHelper;
 import com.admin.budgetrook.interfaces.ChartFragmentInterface;
+import com.admin.budgetrook.interfaces.DataReceiver;
+import com.admin.budgetrook.tasks.FetchChartDataTask;
+import com.admin.budgetrook.tasks.GetExpensesWithinDatesTask;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class AnalyticsActivity extends FragmentActivity implements ChartFragmentInterface {
+public class AnalyticsActivity extends FragmentActivity implements
+        ChartFragmentInterface, DataReceiver {
+
+    public static final String LINE = "line";
+    public static final String BAR = "bar";
+    public static final String RADAR = "radar";
     private AnalyticsAdapter adapter;
     private ViewPager viewPager;
-
-    private List<CategoriesAndExpenses> chartData;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analytics);
-        new FetchChartDataTask().execute();
         adapter = new AnalyticsAdapter(getSupportFragmentManager(), this);
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(adapter);
     }
 
     @Override
-    public List<CategoriesAndExpenses> getData() {
-        Log.d("BUDGETROOK" , "getData chartData " + chartData);
-        return chartData;
+    public void getDataWithinDates(Date from, Date to) {
+        new GetExpensesWithinDatesTask(from, to, this, BAR).execute();
     }
 
-    private class FetchChartDataTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            Long accountId = PrefsHelper.getInstance().getCurrentUserId(getApplicationContext());
-            chartData = AppDatabase.getInstance(getApplicationContext())
-                    .categoriesAndExpensesDao().getAll(accountId);
-            Log.d("BUDGETROOK" , "chartData " + chartData);
-            return null;
+    @Override
+    public void getExpensesForLine() {
+        new FetchChartDataTask(this, LINE).execute();
+    }
+
+    @Override
+    public void getExpensesForRadar() {
+        new FetchChartDataTask(this, RADAR).execute();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
+    public void receiveData(Object data, String id) {
+        switch (id) {
+            case LINE: {
+                ((LineChartFragment) adapter.instantiateItem(viewPager, 0)).pushData((List<CategoriesAndExpenses>) data);
+                break;
+            }
+            case BAR: {
+                ((BarChartFragment) adapter.instantiateItem(viewPager, 1)).pushData((List<ExpenseEntity>) data);
+                break;
+            }
+            case RADAR: {
+                ((RadarChartFragment) adapter.instantiateItem(viewPager, 2)).setup((List<CategoriesAndExpenses>) data);
+                break;
+            }
         }
     }
 }

@@ -31,4 +31,7 @@ public interface CategoryDao {
 
     @Insert
     void insertAll(CategoryEntity... categories);
+
+    @Insert
+    long insert(CategoryEntity entity);
 }

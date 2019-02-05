@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MyExpensesActivity extends Activity {
+public class MyExpensesActivity extends AppCompatActivity {
 
     private ListView myExpensesListView;
     private Map<String, String> categoriesMap = new HashMap<String, String>();

@@ -3,6 +3,7 @@ package com.admin.budgetrook;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -17,7 +18,7 @@ import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.interfaces.LoaderActivity;
 import com.admin.budgetrook.tasks.RegisterUserTask;
 
-public class RegisterActivity extends Activity implements LoaderActivity {
+public class RegisterActivity extends AppCompatActivity implements LoaderActivity {
 
     private EditText login;
     private EditText password;

@@ -5,12 +5,34 @@
     android:layout_height="match_parent"
     tools:context=".fragments.BarChartFragment">
 
-    <Spinner
+
+    <LinearLayout
         android:id="@+id/bar_fragment_period_sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bar_chart_from_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FROM" />
+
+        <Button
+            android:id="@+id/bar_chart_to_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TO" />
+
+        <Button
+            android:id="@+id/bar_chart_ok_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OK" />
+    </LinearLayout>
+
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/bar_chart_fragment_chart"

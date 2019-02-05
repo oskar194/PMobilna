@@ -1,12 +1,14 @@
 package com.admin.budgetrook;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.app.FragmentTransaction;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -17,7 +19,6 @@ import android.widget.TextView;
 
 import com.admin.budgetrook.dialogs.AmountPickerDialog;
 import com.admin.budgetrook.dialogs.DatePickerFragment;
-import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.entities.CategoryEntity;
 import com.admin.budgetrook.entities.ExpenseEntity;
 import com.admin.budgetrook.entities.ImageEntity;
@@ -29,7 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ExpenseDetailView extends Activity implements DatePickerFragment.OnFragmentInteractionListener,
+public class ExpenseDetailView extends AppCompatActivity implements DatePickerFragment.OnFragmentInteractionListener,
         AmountPickerDialog.AmountPickerInterface {
 
     private final String TAG = "BUDGETROOK";
@@ -58,25 +59,25 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
     private static final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
     private void createDatePickerDialog() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment prev = fm.findFragmentByTag("dialog");
         if (prev != null) {
-            ft.remove(prev);
+            fm.beginTransaction().remove(prev).commit();
         }
-        ft.addToBackStack(null);
-        datePickerDialog = DatePickerFragment.newInstance(expenseDate.getText().toString());
-        datePickerDialog.show(ft, "dialog");
+        fm.beginTransaction().addToBackStack(null).commit();
+        datePickerDialog = DatePickerFragment.newInstance(expenseDate.getText().toString(), "datePicker");
+        datePickerDialog.show(fm, "dialog");
     }
 
     private void createAmountPickerDialog() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment prev = fm.findFragmentByTag("dialog");
         if (prev != null) {
-            ft.remove(prev);
+            fm.beginTransaction().remove(prev).commit();
         }
-        ft.addToBackStack(null);
+        fm.beginTransaction().addToBackStack(null).commit();
         amountPickerDialog = AmountPickerDialog.newInstance(expenseAmount.getText().toString());
-        amountPickerDialog.show(ft, "dialog");
+        amountPickerDialog.show(fm, "dialog");
     }
 
     @Override
@@ -89,6 +90,7 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         setContentView(R.layout.activity_expense_detail_view);
         if (getIntent().getStringExtra("expenseUid") != null) {
             expenseUid = getIntent().getStringExtra("expenseUid");
@@ -157,12 +159,14 @@ public class ExpenseDetailView extends Activity implements DatePickerFragment.On
         if (imageEntity != null) {
             thumbnail.setImageBitmap(BitmapFactory.decodeByteArray(imageEntity.getImage(), 0, imageEntity.getImage().length));
         } else {
-            thumbnail.setImageResource(R.drawable.ic_notification);
+            thumbnail.setImageResource(R.drawable.ic_no_image);
+            thumbnail.setMaxHeight(24);
+            thumbnail.setMaxWidth(24);
         }
     }
 
     @Override
-    public void onFragmentInteraction(Date date) {
+    public void onFragmentInteraction(Date date, String id) {
         datePickerDialog.dismiss();
         expenseDate.setText(format.format(date));
     }
