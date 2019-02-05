@@ -1,20 +1,18 @@
 package com.admin.budgetrook.tasks;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.util.Log;
 
 import com.admin.budgetrook.apis.AccountApi;
 import com.admin.budgetrook.entities.AccountEntity;
 import com.admin.budgetrook.helpers.ApiHelper;
+import com.admin.budgetrook.helpers.NoConnectivityException;
 import com.admin.budgetrook.helpers.PrefsHelper;
 import com.admin.budgetrook.interfaces.LoaderActivity;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginTask extends AsyncTask<AccountEntity, Void, String> {
@@ -41,13 +39,14 @@ public class LoginTask extends AsyncTask<AccountEntity, Void, String> {
             Call<ResponseBody> call = api.login(accountEntity.getLogin(), accountEntity.getPassword());
             Response<ResponseBody> response = call.execute();
             if (response.isSuccessful()) {
-                responseMessage = "Login success";
+                responseMessage = "Remote login success";
                 PrefsHelper.getInstance().loginUser(listener.getContext(), accountEntity);
             } else {
-                responseMessage = "Login failed";
+                responseMessage = "Remote login failed";
             }
         } catch (Exception e) {
             this.e = e;
+            responseMessage = "Remote login failed";
         }
         return responseMessage;
     }
@@ -56,9 +55,12 @@ public class LoginTask extends AsyncTask<AccountEntity, Void, String> {
     protected void onPostExecute(String s) {
         if (e != null) {
             Log.e("budgetrook", e.getMessage(), e.getCause());
+            if (e instanceof NoConnectivityException) {
+                responseMessage = "Network unavailable";
+            }
         }
-        listener.loaderOff();
         listener.showMessage(s);
+        listener.loaderOff();
         listener.finishTask();
     }
 }

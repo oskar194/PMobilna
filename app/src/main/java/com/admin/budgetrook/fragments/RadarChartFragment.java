@@ -56,6 +56,10 @@ public class RadarChartFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_radar_chart, container, false);
         chart = (RadarChart) v.findViewById(R.id.radar_chart_fragment_chart);
+        chart.setExtraBottomOffset(30);
+        chart.setExtraRightOffset(30);
+        chart.setExtraTopOffset(30);
+        chart.setExtraLeftOffset(30);
         mListener.getExpensesForRadar();
         return v;
     }
