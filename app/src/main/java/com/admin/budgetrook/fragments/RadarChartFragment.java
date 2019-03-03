@@ -60,6 +60,7 @@ public class RadarChartFragment extends Fragment {
         chart.setExtraRightOffset(30);
         chart.setExtraTopOffset(30);
         chart.setExtraLeftOffset(30);
+        chart.getXAxis().setTextSize(10f);
         mListener.getExpensesForRadar();
         return v;
     }
@@ -87,7 +88,6 @@ public class RadarChartFragment extends Fragment {
             });
             xAxis.setXOffset(0f);
             xAxis.setYOffset(0f);
-            xAxis.setTextSize(15f);
 
             YAxis yAxis = chart.getYAxis();
             yAxis.setEnabled(false);

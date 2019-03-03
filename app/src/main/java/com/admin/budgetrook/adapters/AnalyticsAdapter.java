@@ -11,6 +11,7 @@ import com.admin.budgetrook.fragments.BarChartFragment;
 import com.admin.budgetrook.fragments.LineChartFragment;
 import com.admin.budgetrook.fragments.RadarChartFragment;
 import com.admin.budgetrook.fragments.ScreenSlidePageFragment;
+import com.admin.budgetrook.fragments.SummaryFragment;
 
 public class AnalyticsAdapter extends FragmentPagerAdapter {
     private Context ctx;
@@ -18,7 +19,8 @@ public class AnalyticsAdapter extends FragmentPagerAdapter {
     private static final String[] labels = {
             "Line Chart",
             "Bar Chart",
-            "Radar Chart"
+            "Radar Chart",
+            "Summary"
     };
 
     public AnalyticsAdapter(FragmentManager fm, Context ctx) {
@@ -42,13 +44,16 @@ public class AnalyticsAdapter extends FragmentPagerAdapter {
                 fragment = Fragment.instantiate(ctx, RadarChartFragment.class.getName());
                 break;
             }
+            case 3: {
+                fragment = Fragment.instantiate(ctx, SummaryFragment.class.getName());
+            }
         }
         return fragment;
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
     @Override

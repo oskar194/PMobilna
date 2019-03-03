@@ -43,6 +43,15 @@ public interface ExpenseDao {
     @Query("select count(uid) from expenseentity where isSynchronized = 1 and isReviewed = 0 and accountId = :accountId")
     int getNumberOfExpensesToReview(long accountId);
 
+    @Query("Select * from expenseentity where (date between :from and :to) and accountId =:accountId and isReviewed = 1 and categoryId in (:categories) order by date asc ")
+    List<ExpenseEntity> getExpensesBetweenDatesAndCategories(long accountId, Date from, Date to, List<Long> categories);
+
+    @Query("Select sum(amount) from expenseentity where (date between :from and :to) and accountId =:accountId and isReviewed = 1 and categoryId in (:categories)")
+    float getExpensesBetweenDatesAndCategoriesSum(long accountId, Date from, Date to, List<Long> categories);
+
+    @Query("Select date from expenseentity where isReviewed = 1 and accountId =:accountId")
+    List<Date> getAvailableDates(long accountId);
+
     @Update
     void update(ExpenseEntity expense);
 

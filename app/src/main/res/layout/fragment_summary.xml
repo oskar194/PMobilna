@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/vertical_margin">
+
+    <LinearLayout
+        android:id="@+id/summaryControlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/summaryDateSpinner"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="2" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/summaryCategoryButton"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Categories"
+            android:textAllCaps="false" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/summaryOkButton"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="OK" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/summaryTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/summaryControlLayout"
+        android:background="@drawable/rounded_rect"
+        android:gravity="center_horizontal"
+        android:padding="5dp"
+        android:text="Total: -" />
+
+    <LinearLayout
+        android:id="@+id/summaryHeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/summaryTotal"
+
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Date"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Category"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Name"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Amount"
+            android:textAllCaps="true" />
+
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/summaryRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/summaryHeaderLayout" />
+
+
+</RelativeLayout>

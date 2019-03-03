@@ -15,4 +15,5 @@
     <color name="color6">   #ccffff</color>
     <color name="color7">   #ffccff</color>
     <color name="color8">   #ccb6ff</color>
+    <color name="grayBackground"> #ccc</color>
 </resources>
